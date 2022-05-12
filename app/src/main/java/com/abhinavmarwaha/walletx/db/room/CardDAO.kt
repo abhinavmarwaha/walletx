@@ -1,0 +1,46 @@
+package com.abhinavmarwaha.walletx.db.room
+
+import androidx.lifecycle.LiveData
+import androidx.room.*
+import com.abhinavmarwaha.walletx.db.ID_UNSET
+
+@Dao
+interface CardDAO {
+
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertCard(card: Card) : Long
+
+    @Query("SELECT * FROM cards_table")
+    fun getCards() : LiveData<Card>
+
+    @Query("SELECT * FROM cards_table")
+    suspend fun loadFeeds(): List<Card>
+
+    @Query("SELECT * FROM cards_table WHERE 'group' IS :group")
+    suspend fun loadFeeds(group: String): List<Card>
+
+    @Query("SELECT * FROM cards_table WHERE 'id' IS :id")
+    suspend fun loadCard(id: Long): Card?
+
+    @Update
+    suspend fun updateCard(card: Card): Int
+
+    @Query(
+        """
+        DELETE FROM cards_table WHERE id IN (:ids)
+        """
+    )
+    suspend fun deleteCards(ids: List<Long>): Int
+
+    suspend fun upsertCard(card: Card): Long = when (card.id > ID_UNSET) {
+        true -> {
+            updateCard(card)
+            card.id
+        }
+        false -> {
+            insertCard(card)
+        }
+    }
+
+
+}
