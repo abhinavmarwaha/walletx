@@ -24,8 +24,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import com.abhinavmarwaha.walletx.LongButton
-import com.abhinavmarwaha.walletx.SmallButton
+import com.abhinavmarwaha.walletx.ui.widgets.LongButton
+import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
 
 @Composable
 fun AddCardView() {

@@ -5,6 +5,7 @@ buildscript {
         roomVersion = '2.4.2'
         kodeinVersion = "7.5.0"
         lifecycleVersion = '2.4.1'
+        nav_version = "2.4.2"
     }
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 plugins {
