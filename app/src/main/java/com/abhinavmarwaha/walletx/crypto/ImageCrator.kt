@@ -57,7 +57,7 @@ object ImageCryptor {
         }
     }
 
-    suspend fun encryptImageList(imagesList: ArrayList<String>): List<File> {
+    fun encryptImageList(imagesList: ArrayList<String>): List<File> {
 
         val listSize = imagesList.size
         var count = 0
@@ -71,7 +71,7 @@ object ImageCryptor {
 
     }
 
-    suspend fun encryptImage(originalFilePath: String): File {
+    fun encryptImage(originalFilePath: String): File {
 
         val encryptedImagePath = createCopyOfOriginalFile(originalFilePath)
         try {
@@ -106,7 +106,7 @@ object ImageCryptor {
 
     }
 
-    suspend fun decryptImage(originalFilePath: String): File {
+    fun decryptImage(originalFilePath: String): File {
 
 
         val decryptedFilePath = createCopyOfOriginalFile(originalFilePath)
@@ -142,7 +142,7 @@ object ImageCryptor {
         return File(decryptedFilePath)
     }
 
-    suspend fun decryptFiles(lisOfEncryptedFiles: ArrayList<String>): List<File> {
+    fun decryptFiles(lisOfEncryptedFiles: ArrayList<String>): List<File> {
 
         val listOfDecryptedFiles = arrayListOf<File>()
         lisOfEncryptedFiles.forEach {
@@ -221,9 +221,6 @@ object ImageCryptor {
         return secretKey
     }
 
-    /*
-     * This will convert string to byte array.
-     */
     private fun String.toBytes(): ByteArray {
         return this.toByteArray(Charsets.UTF_8)
     }

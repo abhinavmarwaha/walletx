@@ -1,5 +1,6 @@
 package com.abhinavmarwaha.walletx.archmodel
 
+import androidx.lifecycle.LiveData
 import com.abhinavmarwaha.walletx.db.room.Card
 import com.abhinavmarwaha.walletx.db.room.CardDAO
 import com.abhinavmarwaha.walletx.db.ID_UNSET
@@ -20,83 +21,21 @@ class CardsStore(override val di: DI) : DIAware {
         }
     }
 
-    suspend fun getFeed(feedId: Long): Feed? = feedDao.loadFeed(feedId)
+    fun getCards(group: String): LiveData<List<Card>> = cardDAO.getCards(group)
 
-    suspend fun getFeed(url: URL): Feed? = feedDao.loadFeedWithUrl(url)
+    suspend fun getCard(id: Long): Card? = cardDAO.loadCard(id)
 
-    suspend fun saveFeed(feed: Feed): Long {
-        return if (feed.id > ID_UNSET) {
-            feedDao.updateFeed(feed)
-            feed.id
+    suspend fun saveCard(card: Card): Long {
+        return if (card.id > ID_UNSET) {
+            cardDAO.updateCard(card)
+            card.id
         } else {
-            feedDao.insertFeed(feed)
+            cardDAO.insertCard(card)
         }
     }
 
-    suspend fun deleteFeeds(feedIds: List<Long>) {
-        feedDao.deleteFeeds(feedIds)
-    }
-
-    val allTags: Flow<List<String>> = feedDao.loadAllTags()
-
-    @OptIn(ExperimentalCoroutinesApi::class)
-    val drawerItemsWithUnreadCounts: Flow<List<DrawerItemWithUnreadCount>> =
-        feedDao.loadFlowOfFeedsWithUnreadCounts()
-            .mapLatest { feeds ->
-                mapFeedsToSortedDrawerItems(feeds)
-            }
-
-    private fun mapFeedsToSortedDrawerItems(
-        feeds: List<FeedUnreadCount>,
-    ): List<DrawerItemWithUnreadCount> {
-        var topTag = DrawerTop(unreadCount = 0, syncingChildren = 0, totalChildren = 0)
-        val tags: MutableMap<String, DrawerTag> = mutableMapOf()
-        val data: MutableList<DrawerItemWithUnreadCount> = mutableListOf()
-
-        for (feedDbo in feeds) {
-            val feed = DrawerFeed(
-                unreadCount = feedDbo.unreadCount,
-                tag = feedDbo.tag,
-                id = feedDbo.id,
-                displayTitle = feedDbo.displayTitle,
-                currentlySyncing = feedDbo.currentlySyncing,
-            )
-
-            data.add(feed)
-            topTag = topTag.copy(
-                unreadCount = topTag.unreadCount + feed.unreadCount,
-                totalChildren = topTag.totalChildren + 1,
-                syncingChildren = if (feedDbo.currentlySyncing) {
-                    topTag.syncingChildren + 1
-                } else {
-                    topTag.syncingChildren
-                }
-            )
-
-            if (feed.tag.isNotEmpty()) {
-                val tag = tags[feed.tag] ?: DrawerTag(
-                    tag = feed.tag,
-                    unreadCount = 0,
-                    uiId = getTagUiId(feed.tag),
-                    syncingChildren = 0,
-                    totalChildren = 0,
-                )
-                tags[feed.tag] = tag.copy(
-                    unreadCount = tag.unreadCount + feed.unreadCount,
-                    totalChildren = tag.totalChildren + 1,
-                    syncingChildren = if (feedDbo.currentlySyncing) {
-                        tag.syncingChildren + 1
-                    } else {
-                        tag.syncingChildren
-                    },
-                )
-            }
-        }
-
-        data.add(topTag)
-        data.addAll(tags.values)
-
-        return data.sorted()
+    suspend fun deleteFeeds(ids: List<Long>) {
+        cardDAO.deleteCards(ids)
     }
 
     suspend fun upsertCard(card: Card) =

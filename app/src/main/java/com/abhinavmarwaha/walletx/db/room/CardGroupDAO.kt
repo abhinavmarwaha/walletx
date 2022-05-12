@@ -32,7 +32,7 @@ interface CardGroupDAO {
     )
     suspend fun deleteGroups(guids: List<Long>): Int
 
-    suspend fun upsertFeed(group: CardGroup): Long = when (group.guid > ID_UNSET) {
+    suspend fun upsertGroup(group: CardGroup): Long = when (group.guid > ID_UNSET) {
         true -> {
             updateGroup(group)
             group.guid

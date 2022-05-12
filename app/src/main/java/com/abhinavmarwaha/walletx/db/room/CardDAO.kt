@@ -13,11 +13,14 @@ interface CardDAO {
     @Query("SELECT * FROM cards_table")
     fun getCards() : LiveData<Card>
 
+    @Query("SELECT * FROM cards_table WHERE 'group' IS :group")
+    fun getCards(group: String) : LiveData<List<Card>>
+
     @Query("SELECT * FROM cards_table")
-    suspend fun loadFeeds(): List<Card>
+    suspend fun loadCards(): List<Card>
 
     @Query("SELECT * FROM cards_table WHERE 'group' IS :group")
-    suspend fun loadFeeds(group: String): List<Card>
+    suspend fun loadCards(group: String): List<Card>
 
     @Query("SELECT * FROM cards_table WHERE 'id' IS :id")
     suspend fun loadCard(id: Long): Card?
