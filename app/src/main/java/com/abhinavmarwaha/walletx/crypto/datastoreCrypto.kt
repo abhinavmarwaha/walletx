@@ -1,10 +1,22 @@
 package com.abhinavmarwaha.walletx.crypto
 
+import android.content.Context
 import android.os.Build
 import android.security.keystore.KeyGenParameterSpec
 import android.security.keystore.KeyProperties
 import androidx.annotation.RequiresApi
+import androidx.datastore.core.CorruptionException
 import androidx.datastore.core.DataStore
+import androidx.datastore.core.DataStoreFactory
+import androidx.datastore.core.Serializer
+import androidx.datastore.dataStoreFile
+import androidx.datastore.preferences.core.PreferenceDataStoreFactory
+import androidx.datastore.preferences.core.Preferences
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
+import java.io.File
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.security.KeyStore
@@ -13,16 +25,20 @@ import javax.crypto.KeyGenerator
 import javax.crypto.SecretKey
 import javax.crypto.spec.IvParameterSpec
 
+/*
+    Reference : https://stackoverflow.com/questions/65653650/androidx-datastore-aes-cbc-pkcs7-javax-crypto-illegalblocksizeexception
+ */
+
 interface CipherProvider {
     val encryptCipher: Cipher
     fun decryptCipher(iv: ByteArray): Cipher
 }
 
 @RequiresApi(Build.VERSION_CODES.M)
-class AesCipherProvider @Inject constructor(
-    @Named(SecurityModule.KEY_NAME) private val keyName: String,
+class AesCipherProvider constructor(
+    private val keyName: String,
     private val keyStore: KeyStore,
-    @Named(SecurityModule.KEY_STORE_NAME) private val keyStoreName: String
+    private val keyStoreName: String
 ) : CipherProvider {
 
     override val encryptCipher: Cipher
@@ -69,7 +85,7 @@ interface Crypto {
     fun decrypt(inputStream: InputStream): ByteArray
 }
 
-class CryptoImpl @Inject constructor(private val cipherProvider: CipherProvider) : Crypto {
+class CryptoImpl constructor(private val cipherProvider: CipherProvider) : Crypto {
 
     override fun encrypt(rawBytes: ByteArray, outputStream: OutputStream) {
         val cipher = cipherProvider.encryptCipher
@@ -94,8 +110,6 @@ class CryptoImpl @Inject constructor(private val cipherProvider: CipherProvider)
     }
 }
 
-@Module(includes = [SecurityModule.Declarations::class])
-@InstallIn(ApplicationComponent::class)
 object SecurityModule {
 
     const val KEY_NAME = "Key Name"
@@ -104,43 +118,35 @@ object SecurityModule {
     private const val ANDROID_KEY_STORE_TYPE = "AndroidKeyStore"
     private const val SIMPLE_DATA_KEY_NAME = "SimpleDataKey"
 
-    @Provides
     fun provideKeyStore(): KeyStore =
         KeyStore.getInstance(ANDROID_KEY_STORE_TYPE).apply { load(null) }
 
-    @Provides
-    @Named(KEY_NAME)
     fun providesKeyName(): String = SIMPLE_DATA_KEY_NAME
 
-    @Provides
-    @Named(KEY_STORE_NAME)
     fun providesKeyStoreName(): String = ANDROID_KEY_STORE_TYPE
 
-    @Module
-    @InstallIn(ApplicationComponent::class)
+
     interface Declarations {
 
-        @Binds
         fun bindsCipherProvider(impl: AesCipherProvider): CipherProvider
 
-        @Binds
         fun bindsCrypto(impl: CryptoImpl): Crypto
     }
 }
 
 class SecureSimpleDataSerializer(private val crypto: Crypto) :
-    Serializer<SimpleData> {
+    Serializer<Preferences> {
 
-    override fun readFrom(input: InputStream): SimpleData {
+    override fun readFrom(input: InputStream): Preferences {
         return if (input.available() != 0) {
             try {
 
-                SimpleData.ADAPTER.decode(crypto.decrypt(input))
+                Preferences.ADAPTER.decode(crypto.decrypt(input))
             } catch (exception: IOException) {
                 throw CorruptionException("Cannot read proto", exception)
             }
         } else {
-            SimpleData("")
+            Preferences()
         }
     }
 
@@ -149,17 +155,20 @@ class SecureSimpleDataSerializer(private val crypto: Crypto) :
     }
 }
 
-@Module
-@InstallIn(ApplicationComponent::class)
 object DataStoreModule {
 
-    @Provides
     fun providesDataStore(
-        @ApplicationContext context: Context,
+        context: Context,
         crypto: Crypto
-    ): DataStore<SimpleData> =
-        context.createDataStore(
-            fileName = "DataStoreTest.pb",
-            serializer = SecureSimpleDataSerializer(crypto)
+    ): DataStore<Preferences> =
+        DataStoreFactory.create(
+            serializer = SecureSimpleDataSerializer(crypto), // your Serializer
+            corruptionHandler = null,
+            migrations = emptyList(),
+            scope = CoroutineScope(Dispatchers.IO + Job())
         )
+//        PreferenceDataStoreFactory.create()
+        {
+            File(context.filesDir, "DataStoreTest.pb")
+        }
 }
