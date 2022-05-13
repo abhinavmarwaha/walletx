@@ -4,12 +4,14 @@ import androidx.lifecycle.LiveData
 import com.abhinavmarwaha.walletx.db.room.Card
 import com.abhinavmarwaha.walletx.db.room.CardDAO
 import com.abhinavmarwaha.walletx.db.ID_UNSET
+import com.abhinavmarwaha.walletx.db.room.CGRelationDao
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance
 
 class CardsStore(override val di: DI) : DIAware {
     private val cardDAO: CardDAO by instance()
+    private val cgRelationDao: CGRelationDao by instance()
 
     private var nextTagUiId: Long = -1000
 
@@ -21,7 +23,7 @@ class CardsStore(override val di: DI) : DIAware {
         }
     }
 
-    fun getCards(group: String): LiveData<List<Card>> = cardDAO.getCards(group)
+    fun getCards(group: String): LiveData<List<Card>> = cardDAO.getCards()
 
     suspend fun getCard(id: Long): Card? = cardDAO.loadCard(id)
 
@@ -43,6 +45,10 @@ class CardsStore(override val di: DI) : DIAware {
 
     suspend fun deleteCard(id: Long) {
         cardDAO.deleteCards(List(1){id})
+    }
+
+    suspend fun getCardsOfGroup(guid: Long){
+        cgRelationDao.getCardsOfGroup(guid)
     }
 
 

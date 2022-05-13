@@ -7,22 +7,18 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
-import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.db.room.Card
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -62,7 +58,7 @@ fun CardsView(group: String) {
 }
 
 
-class CardViewModel(private val cardStore: CardsStore, group: String) : ViewModel() {
+class CardViewModel(private val cardStore: CardsStore,private val group: String) : ViewModel() {
     val cards = mutableStateListOf<Card>()
 
     init {

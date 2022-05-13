@@ -11,16 +11,11 @@ interface CardDAO {
     suspend fun insertCard(card: Card) : Long
 
     @Query("SELECT * FROM cards_table")
-    fun getCards() : LiveData<Card>
-
-    @Query("SELECT * FROM cards_table WHERE 'group' IS :group")
-    fun getCards(group: String) : LiveData<List<Card>>
+    fun getCards() : LiveData<List<Card>>
 
     @Query("SELECT * FROM cards_table")
     suspend fun loadCards(): List<Card>
 
-    @Query("SELECT * FROM cards_table WHERE 'group' IS :group")
-    suspend fun loadCards(group: String): List<Card>
 
     @Query("SELECT * FROM cards_table WHERE 'id' IS :id")
     suspend fun loadCard(id: Long): Card?
@@ -44,6 +39,4 @@ interface CardDAO {
             insertCard(card)
         }
     }
-
-
 }

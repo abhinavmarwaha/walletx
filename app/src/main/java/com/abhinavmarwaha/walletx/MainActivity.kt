@@ -17,15 +17,16 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.abhinavmarwaha.walletx.db.room.AppDatabase
-import com.abhinavmarwaha.walletx.db.room.CardDAO
-import com.abhinavmarwaha.walletx.db.room.CardGroupDAO
+import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
 import com.abhinavmarwaha.walletx.models.Money
 import com.abhinavmarwaha.walletx.ui.AddCardView
+import com.abhinavmarwaha.walletx.ui.AllCards
+import com.abhinavmarwaha.walletx.ui.AllNotes
 import com.abhinavmarwaha.walletx.ui.compose.CardsView
-import com.abhinavmarwaha.walletx.ui.compose.KeyValueView
 import com.abhinavmarwaha.walletx.ui.compose.MoneyView
+import com.abhinavmarwaha.walletx.ui.compose.NoteView
+import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.WalletXTheme
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
@@ -38,6 +39,8 @@ class MainActivity : ComponentActivity(), DIAware {
         bind<AppDatabase>() with singleton { AppDatabase.getInstance(this@MainActivity) }
         bind<CardDAO>() with singleton { instance<AppDatabase>().cardDao() }
         bind<CardGroupDAO>() with singleton { instance<AppDatabase>().cardGroupDao() }
+        bind<CGRelationDao>() with singleton { instance<AppDatabase>().cgRelationDao() }
+        bind<NotesDao>() with singleton { instance<AppDatabase>().notesDao() }
         bind<Money>() with singleton { Money(dataStore) }
 
         import(archModelModule)
@@ -56,6 +59,8 @@ class MainActivity : ComponentActivity(), DIAware {
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { Home(navController) }
                         composable("addFeed") { AddCardView() }
+                        composable("allCards") { AllCards() }
+                        composable("allNotes") { AllNotes() }
                     }
                 }
             }
@@ -70,13 +75,13 @@ fun Home(navController: NavController) {
         MoneyView()
         CardsView("main")
         Row(Modifier.fillMaxWidth().padding(vertical = 30.dp), verticalAlignment = Alignment.CenterVertically) {
-            LongButton({}, "All")
+            LongButton({navController.navigate("allCards")}, "All")
             Spacer(Modifier.size(10.dp))
-            SmallButton({navController.navigate("addFeed") }, "Add")
+            SmallButton({navController.navigate("addFeed") }, "Add", color = DarkRed)
         }
-        KeyValueView("main")
+        NoteView(0)
         Box(Modifier.padding(vertical = 30.dp)){
-            LongButton({ }, "All")
+            LongButton({ navController.navigate("allNotes")}, "All")
         }
     }
 }

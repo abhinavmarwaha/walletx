@@ -2,22 +2,24 @@ package com.abhinavmarwaha.walletx.ui.compose
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Checkbox
 import androidx.compose.material.TextField
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
-fun EditDialog(
+fun EditDialog2(
     showDialog: Boolean,
     setShowDialog: (Boolean) -> Unit,
     text: MutableState<String>,
+    text2: MutableState<String>,
     title: String,
+    lbl: String,
+    lbl2: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
+    keyboardOptions2: KeyboardOptions = KeyboardOptions(),
     onPositiveClick: () -> Unit
 ) {
     if (showDialog) {
@@ -33,10 +35,15 @@ fun EditDialog(
                     TextField(
                         text.value,
                         onValueChange = { text.value = it },
-                        keyboardOptions = keyboardOptions
+                        keyboardOptions = keyboardOptions,
+                        label = { Text(lbl) }
                     )
-                    Text("Custom Text")
-                    Checkbox(checked = false, onCheckedChange = {})
+                    TextField(
+                        text2.value,
+                        onValueChange = { text2.value = it },
+                        keyboardOptions = keyboardOptions2,
+                        label = { Text(lbl2) }
+                    )
                 }
             },
             confirmButton = {

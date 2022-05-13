@@ -73,8 +73,9 @@ dependencies {
     // Images
     implementation "com.github.skydoves:landscapist-glide:1.5.1"
 
-    // Key-Value (SharedPref for Kotlin)
+    // Key-Value
     implementation("androidx.datastore:datastore-preferences:1.0.0")
+    implementation 'com.google.code.gson:gson:2.8.9'
 
     // Widgets
     implementation "com.google.accompanist:accompanist-pager:0.24.8-beta"

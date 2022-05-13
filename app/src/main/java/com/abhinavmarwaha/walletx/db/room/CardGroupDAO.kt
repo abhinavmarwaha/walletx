@@ -11,7 +11,7 @@ interface CardGroupDAO {
     suspend fun insertGroup(group: CardGroup): Long
 
     @Query("SELECT * FROM cards_group_table")
-    fun getGroups() : LiveData<CardGroup>
+    fun getGroups() : LiveData<List<CardGroup>>
 
     @Query("SELECT * FROM cards_group_table")
     suspend fun loadGroups(): List<CardGroup>

@@ -4,15 +4,18 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -33,7 +36,14 @@ fun MoneyView() {
     val money: Money by di.instance()
     val vm = MoneyViewModel(money)
 
-    Row (modifier = Modifier.fillMaxWidth().padding(horizontal = 20.dp, vertical = 30.dp), horizontalArrangement = Arrangement.SpaceEvenly){
+    val editMoney = remember {mutableStateOf("")}
+    var editMoneyTitle = remember {mutableStateOf("")}
+
+    val coroutineScope = rememberCoroutineScope()
+
+    Row (modifier = Modifier
+        .fillMaxWidth()
+        .padding(horizontal = 20.dp, vertical = 30.dp), horizontalArrangement = Arrangement.SpaceEvenly){
         Row(verticalAlignment = Alignment.CenterVertically){
             Image(
                 painterResource(R.drawable.cash),
@@ -43,6 +53,7 @@ fun MoneyView() {
             )
             Spacer(Modifier.size(20.dp))
             Text(vm.cash.value.toString(), Modifier.combinedClickable(enabled = true, onLongClick = {
+                editMoneyTitle.value = "Cash"
                 setShowDialog(true)
             }, onClick = {}))
         }
@@ -55,10 +66,30 @@ fun MoneyView() {
             )
             Spacer(Modifier.size(20.dp))
             Text(vm.change.value.toString(), Modifier.combinedClickable(enabled = true, onLongClick = {
+                editMoneyTitle.value = "Change"
                 setShowDialog(true)
             }, onClick = {}))
         }
-        EditDialog(showDialog, setShowDialog)
+        EditDialog(
+            showDialog,
+            setShowDialog,
+            editMoney,
+            editMoneyTitle.value,
+            KeyboardOptions(keyboardType = KeyboardType.Number)
+        ) {
+            if(editMoney.value.isEmpty()) editMoney.value = "0"
+            if (editMoneyTitle.value.compareTo("Cash") == 0) {
+                coroutineScope.launch {
+                    money.setCash(editMoney.value.toInt())
+                }
+            }
+            else{
+                coroutineScope.launch {
+                    money.setChange(editMoney.value.toInt())
+                }
+
+            }
+        }
     }
 
 }
