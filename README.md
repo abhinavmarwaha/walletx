@@ -38,11 +38,13 @@ Private and Secure Android Wallet
 # Features:
 
 * Store Your Credit cards, id cards, reciepts anything you will in a wallet
+* Store Important info like Medicine Names, dates etc
 * everthing is encryppted and locked with a pattern
 
 ### Coming Soon:
 
 * Share wallet items securely with your family and friends
+* UI Photograph we put in our wallets
 
 # Have Suggestions ?
 
