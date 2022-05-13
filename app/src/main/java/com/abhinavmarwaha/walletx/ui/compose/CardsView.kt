@@ -10,21 +10,16 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
-import com.abhinavmarwaha.walletx.db.room.Card
-import com.abhinavmarwaha.walletx.utils.MediaUtils
+import com.abhinavmarwaha.walletx.crypto.ImageCryptor
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
@@ -50,7 +45,9 @@ fun CardsView(group: String) {
     } else {
         HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
             Log.e("Image", cards.value[page].image)
-            val imageFile = FileInputStream(MediaUtils.getRealPathFromURI_API19(context, Uri.parse(cards.value[page].image))).readBytes()
+            val file = ImageCryptor.decryptBitmap(cards.value[page].image, context)
+            Log.e("Image", file?.path.toString())
+            val imageFile = FileInputStream(file!!).readBytes()
             Image(
                 BitmapFactory.decodeByteArray(imageFile, 0, imageFile.size).asImageBitmap(),
                 cards.value[page].title,

@@ -9,7 +9,7 @@ import android.provider.MediaStore
 
 class MediaUtils {
     companion object{
-        fun getRealPathFromURI_API19(context: Context, uri: Uri?): String? {
+        fun getRealPathFromURI_API19(context: Context, uri: Uri?): String {
             var filePath = ""
             val wholeID = DocumentsContract.getDocumentId(uri)
             val id = wholeID.split(":").toTypedArray()[1]

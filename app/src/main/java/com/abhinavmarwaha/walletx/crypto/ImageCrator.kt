@@ -1,15 +1,22 @@
 package com.abhinavmarwaha.walletx.crypto
 
+import android.R.attr.bitmap
+import android.content.Context
+import android.graphics.Bitmap
 import android.os.CountDownTimer
 import com.abhinavmarwaha.walletx.utils.FileUtils
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.nio.ByteBuffer
 import java.security.InvalidKeyException
+import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
+import java.util.*
 import javax.crypto.*
 import javax.crypto.spec.SecretKeySpec
+
 
 object ImageCryptor {
 
@@ -68,6 +75,52 @@ object ImageCryptor {
         }
 
         return listOfEncryptedFiles
+
+    }
+
+    @Throws(NoSuchAlgorithmException::class)
+    fun SHAsum(convertme: ByteArray?): String {
+        val md: MessageDigest = MessageDigest.getInstance("SHA-1")
+        return byteArray2Hex(md.digest(convertme))
+    }
+
+    private fun byteArray2Hex(hash: ByteArray): String {
+        val formatter = Formatter()
+        for (b in hash) {
+            formatter.format("%02x", b)
+        }
+        return formatter.toString()
+    }
+
+    fun encryptBitmap(originalBitmap: Bitmap, context: Context): String {
+        val size: Int = originalBitmap.rowBytes * originalBitmap.height
+        val byteBuffer: ByteBuffer = ByteBuffer.allocate(size)
+        originalBitmap.copyPixelsToBuffer(byteBuffer)
+        val byteArray = byteBuffer.array()
+        val hash = SHAsum(byteArray)
+        val file = context.openFileOutput(hash, Context.MODE_PRIVATE)
+        try {
+            val aes = Cipher.getInstance(ALGORITHM)
+            aes.init(Cipher.ENCRYPT_MODE, key)
+            val out = CipherOutputStream(file, aes)
+            out.write(byteArray)
+            out.flush()
+            out.close()
+        } catch (e: NoSuchAlgorithmException) {
+            e.printStackTrace()
+        } catch (e: NoSuchPaddingException) {
+            e.printStackTrace()
+        } catch (e: InvalidKeyException) {
+            e.printStackTrace()
+        } catch (e: IllegalBlockSizeException) {
+            e.printStackTrace()
+        } catch (e: BadPaddingException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
+        }
+
+        return hash
 
     }
 
@@ -139,8 +192,49 @@ object ImageCryptor {
 
 
         }
+
+        deleteFileAfterView(decryptedFilePath)
+
         return File(decryptedFilePath)
     }
+
+
+    fun decryptBitmap(hash: String, context: Context): File? {
+        val tempDecrypted = hash + "_"
+
+        val fis = context.openFileInput(hash)
+
+        try {
+            val aes = Cipher.getInstance(ALGORITHM)
+            aes.init(Cipher.DECRYPT_MODE, key)
+            val out = CipherInputStream(fis, aes)
+
+            val timer = object : CountDownTimer(20000, 1000) {
+                override fun onTick(millisUntilFinished: Long) {}
+
+                override fun onFinish() {
+                    context.deleteFile(tempDecrypted)
+                }
+            }
+            timer.start()
+            val file = File(context.cacheDir, tempDecrypted)
+            file.outputStream().use {
+                out.copyTo(it)
+            }
+            return file
+        } catch (ex: NoSuchAlgorithmException) {
+            ex.printStackTrace()
+        } catch (ex: NoSuchPaddingException) {
+            ex.printStackTrace()
+        } catch (ex: InvalidKeyException) {
+            ex.printStackTrace()
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+        }
+
+        return null
+    }
+
 
     fun decryptFiles(lisOfEncryptedFiles: ArrayList<String>): List<File> {
 
@@ -176,11 +270,11 @@ object ImageCryptor {
         val copyFile = File(filePath, "$TEMP_IMAGE_TAG$imageName")
 
         //Create a copy of original file
-        try {
+//        try {
             FileUtils.copy(originalFile, copyFile)
-        } catch (ex: IOException) {
-            ex.printStackTrace()
-        }
+//        } catch (ex: IOException) {
+//            ex.printStackTrace()
+//        }
 
         return copyFile.path
     }

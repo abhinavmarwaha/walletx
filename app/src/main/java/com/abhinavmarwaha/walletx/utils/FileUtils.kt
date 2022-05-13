@@ -43,15 +43,15 @@ object FileUtils {
 
     @Throws(IOException::class, FileNotFoundException::class)
     private fun copyFile(source: File, target: File) {
-        try {
+//        try {
             val inputStream = FileInputStream(source)
             val out = FileOutputStream(target)
             out.write(inputStream.readBytes())
             out.flush()
             out.close()
-        } catch (e: IOException) {
-            throw IOException()
-        }
+//        } catch (e: IOException) {
+//            throw IOException()
+//        }
     }
 
     @Throws(IOException::class)

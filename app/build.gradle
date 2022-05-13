@@ -65,6 +65,7 @@ dependencies {
 
     // Room components
     implementation "androidx.room:room-ktx:$roomVersion"
+    implementation 'androidx.appcompat:appcompat:1.4.1'
     kapt "androidx.room:room-compiler:$roomVersion"
     androidTestImplementation "androidx.room:room-testing:$roomVersion"
 
@@ -77,6 +78,10 @@ dependencies {
     // Key-Value
     implementation("androidx.datastore:datastore-preferences:1.0.0")
     implementation 'com.google.code.gson:gson:2.8.9'
+
+    // Encryption
+    implementation 'net.zetetic:android-database-sqlcipher:4.5.1@aar'
+    implementation 'androidx.sqlite:sqlite:2.2.0'
 
     // Widgets
     implementation "com.google.accompanist:accompanist-pager:0.24.8-beta"

@@ -9,6 +9,7 @@ import android.provider.MediaStore
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.activity.result.launch
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
@@ -29,11 +30,13 @@ import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardGroupsStore
+import com.abhinavmarwaha.walletx.crypto.ImageCryptor
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.LightRed
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
+import com.abhinavmarwaha.walletx.utils.MediaUtils
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -64,6 +67,13 @@ fun AddCardView(navController: NavController) {
     val launcher =
         rememberLauncherForActivityResult(ActivityResultContracts.GetContent()) {
             imageData.value = it
+        }
+
+    val camBitmap = remember { mutableStateOf<Bitmap?>(null) }
+
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            camBitmap.value = it
         }
 
     val coroutineScope = rememberCoroutineScope()
@@ -100,7 +110,9 @@ fun AddCardView(navController: NavController) {
             } else {
                 val card = Card()
                 card.title = textState.value.text
-                card.image = imageData.value.toString()
+//                val path = MediaUtils.getRealPathFromURI_API19(context,imageData.value)
+                val cryptedFile = ImageCryptor.encryptBitmap(camBitmap.value!!, context)
+                card.image = cryptedFile
 
                 coroutineScope.launch {
                     val selected = mutableListOf<CardGroupRelation>()
@@ -127,9 +139,20 @@ fun AddCardView(navController: NavController) {
         if (imageData.value == null)
             Box(Modifier.align(Alignment.CenterHorizontally)) {
                 LongButton(function = {
-                    launcher.launch("image/*")
+//                    launcher.launch("image/*")
+                    cameraLauncher.launch()
                 }, text = "Add Image")
             }
+        camBitmap.let {
+            val data = it.value
+            if (data != null) {
+                Image(
+                    bitmap = data.asImageBitmap(),
+                    contentDescription = null,
+                    modifier = Modifier.size(400.dp)
+                )
+            }
+        }
         imageData.let {
             val bitmap = remember { mutableStateOf<Bitmap?>(null) }
             val uri = it.value

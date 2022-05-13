@@ -1,9 +1,10 @@
 package com.abhinavmarwaha.walletx.db.room
 
 import android.content.Context
-import android.util.Log
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
+import net.sqlcipher.database.SQLiteDatabase
+import net.sqlcipher.database.SupportFactory
 import java.util.concurrent.Executors
 
 private val IO_EXECUTOR = Executors.newSingleThreadExecutor()
@@ -56,6 +57,8 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context): AppDatabase {
+            val passphrase: ByteArray = SQLiteDatabase.getBytes("default".toCharArray()) // TODO Password
+            val factory = SupportFactory(passphrase)
            return Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
                 .addCallback(object: Callback(){
                     override fun onCreate(db: SupportSQLiteDatabase) {

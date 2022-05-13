@@ -167,7 +167,7 @@ class PatternLockView : GridLayout {
             if (lineStyle == LINE_STYLE_COMMON) {
                 linePath.lineTo(center.x.toFloat(), center.y.toFloat())
             } else if (lineStyle == LINE_STYLE_INDICATOR) {
-                var previousCell = selectedCells[selectedCells.size - 2]
+                val previousCell: Cell = selectedCells[selectedCells.size - 2]
                 var previousCellCenter = previousCell.getCenter()
                 var diffX = center.x - previousCellCenter.x
                 var diffY = center.y - previousCellCenter.y

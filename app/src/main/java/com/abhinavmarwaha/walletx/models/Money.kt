@@ -11,6 +11,7 @@ class Money constructor(private val dataStore: DataStore<Preferences>){
 
     private val CASH = intPreferencesKey("cash")
     private val CHANGE = intPreferencesKey("change")
+    val prefs = EncryptedSharedPreferences()
     val cashflow: Flow<List<Int>> = dataStore.data
         .map { preferences ->
             listOf(preferences[CASH] ?: 0, preferences[CHANGE] ?: 0)
