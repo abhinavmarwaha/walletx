@@ -21,7 +21,9 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.abhinavmarwaha.walletx.R
 import com.abhinavmarwaha.walletx.models.Money
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
@@ -30,21 +32,31 @@ import org.kodein.di.instance
 @Composable
 @OptIn(ExperimentalFoundationApi::class)
 fun MoneyView() {
-    val (showDialog, setShowDialog) =  remember { mutableStateOf(false) }
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
 
     val di: DI by closestDI(LocalContext.current)
     val money: Money by di.instance()
     val vm = MoneyViewModel(money)
 
-    val editMoney = remember {mutableStateOf("")}
-    var editMoneyTitle = remember {mutableStateOf("")}
+    val editMoney = remember { mutableStateOf("") }
+    var editMoneyTitle = remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
-    Row (modifier = Modifier
-        .fillMaxWidth()
-        .padding(horizontal = 20.dp, vertical = 30.dp), horizontalArrangement = Arrangement.SpaceEvenly){
-        Row(verticalAlignment = Alignment.CenterVertically){
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 20.dp, vertical = 30.dp),
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.combinedClickable(enabled = true, onClick = {
+                editMoneyTitle.value = "Cash"
+                editMoney.value = vm.cash.value.toString()
+                setShowDialog(true)
+            })
+        ) {
             Image(
                 painterResource(R.drawable.cash),
                 contentDescription = "Cash",
@@ -52,12 +64,16 @@ fun MoneyView() {
                 modifier = Modifier.size(48.dp)
             )
             Spacer(Modifier.size(20.dp))
-            Text(vm.cash.value.toString(), Modifier.combinedClickable(enabled = true, onLongClick = {
-                editMoneyTitle.value = "Cash"
-                setShowDialog(true)
-            }, onClick = {}))
+            Text(vm.cash.value.toString())
         }
-        Row (verticalAlignment = Alignment.CenterVertically){
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier.combinedClickable(enabled = true, onClick = {
+                editMoneyTitle.value = "Change"
+                editMoney.value = vm.change.value.toString()
+                setShowDialog(true)
+            })
+        ) {
             Image(
                 painterResource(R.drawable.coin),
                 contentDescription = "Cash",
@@ -65,10 +81,7 @@ fun MoneyView() {
                 modifier = Modifier.size(48.dp)
             )
             Spacer(Modifier.size(20.dp))
-            Text(vm.change.value.toString(), Modifier.combinedClickable(enabled = true, onLongClick = {
-                editMoneyTitle.value = "Change"
-                setShowDialog(true)
-            }, onClick = {}))
+            Text(vm.change.value.toString())
         }
         EditDialog(
             showDialog,
@@ -77,13 +90,12 @@ fun MoneyView() {
             editMoneyTitle.value,
             KeyboardOptions(keyboardType = KeyboardType.Number)
         ) {
-            if(editMoney.value.isEmpty()) editMoney.value = "0"
+            if (editMoney.value.isEmpty()) editMoney.value = "0"
             if (editMoneyTitle.value.compareTo("Cash") == 0) {
                 coroutineScope.launch {
                     money.setCash(editMoney.value.toInt())
                 }
-            }
-            else{
+            } else {
                 coroutineScope.launch {
                     money.setChange(editMoney.value.toInt())
                 }

@@ -19,7 +19,9 @@ import com.abhinavmarwaha.walletx.ui.compose.CardsView
 import com.abhinavmarwaha.walletx.ui.compose.EditDialog
 import com.abhinavmarwaha.walletx.ui.compose.MoneyViewModel
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
@@ -31,23 +33,21 @@ fun AllCards(){
     val di: DI by closestDI(LocalContext.current)
     val cardGroupsStore: CardGroupsStore by di.instance()
     val cardGroupDAO: CardGroupDAO by di.instance()
-    val vm = AllCardsViewModel(cardGroupsStore)
+    val groups = cardGroupsStore.getCardGroups().collectAsState(listOf())
 
     val addGroupTitle = remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
-
     Column() {
         LongButton(function = {setShowDialog(true)}, text = "Add")
         LazyColumn(){
-            items(items = vm.groups) {
+            items(items = groups.value) {
                     item ->
                 Column() {
                     Text(item.group)
                     CardsView(group = item.group)
                 }
-
             }
         }
         EditDialog(
@@ -62,20 +62,6 @@ fun AllCards(){
                     group.group = addGroupTitle.value
                     cardGroupDAO.insertGroup(group)
                 }
-            }
-        }
-    }
-
-
-}
-
-class AllCardsViewModel(private val groupsStore: CardGroupsStore): ViewModel(){
-    val groups = mutableStateListOf<CardGroup>()
-
-    init {
-        viewModelScope.launch {
-            groupsStore.getCardGroups().asFlow().collect{
-                groups.addAll(it)
             }
         }
     }

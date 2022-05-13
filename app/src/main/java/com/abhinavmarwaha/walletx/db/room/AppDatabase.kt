@@ -1,6 +1,7 @@
 package com.abhinavmarwaha.walletx.db.room
 
 import android.content.Context
+import android.util.Log
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
 import java.util.concurrent.Executors
@@ -60,11 +61,15 @@ abstract class AppDatabase : RoomDatabase() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
                         ioThread {
+                            val db = getInstance(context)
                             val note = KeyValueNote()
                             note.title = "Main"
-                            note.id = 0
-                            note.keyValues = listOf(Pair("Name", ""))
-                            getInstance(context).notesDao().insertNote(note)
+                            note.keyValues = listOf(Pair("Name", "James"))
+                            db.notesDao().insertNote(note)
+
+                            val group = CardGroup()
+                            group.group = "Main"
+                            db.cardGroupDao().insertGroup(group)
                         }
                 }})
                 .build()

@@ -1,26 +1,38 @@
 package com.abhinavmarwaha.walletx.db.room
 
+import android.util.Log
 import androidx.room.TypeConverter
-import com.google.gson.GsonBuilder
-import com.google.gson.reflect.TypeToken
-import java.lang.reflect.Type
+import com.google.gson.JsonElement
+import com.google.gson.JsonParser
+
 
 class Converters {
     @TypeConverter
-    public fun toKeyValue(keyValuesJson: String):  List<Pair<String,String>> {
-        val gson = GsonBuilder()
-        val collectionType: Type = object : TypeToken<Pair<String, String>>() {}.type
+    public fun toKeyValue(keyValuesJson: String): List<Pair<String, String>> {
 
-        return gson.create().fromJson(keyValuesJson, collectionType)
+        val res = mutableListOf<Pair<String, String>>()
+        val jElement: JsonElement = JsonParser.parseString(keyValuesJson)
+        var jArray = jElement.asJsonArray
+        jArray.map {
+            val jObj = it.asJsonObject
+            val key = jObj.keySet().first() as String
+            val value = jObj[key].asString
+            res.add(Pair(key, value))
+        }
+        return res
     }
 
     @TypeConverter
     public fun fromKeyValue(keyValues: List<Pair<String,String>>): String {
-        val gson = GsonBuilder()
-        val collectionType: Type = object : TypeToken<Pair<String, String>>() {}.type
+        val len = keyValues.size
+        var res = ""
+        keyValues.forEachIndexed{ index,it ->
+            var str:String = "{" + '"' + it.first + '"' + ":" + '"' + it.second + '"' + "}"
+            if(len!=1 && index!=len-1) str += ","
+            res += str
+        }
+        res = "[$res]"
 
-        if(keyValues.isEmpty()) return "{}"
-
-        return gson.create().toJson(keyValues, collectionType)
+        return res
     }
 }

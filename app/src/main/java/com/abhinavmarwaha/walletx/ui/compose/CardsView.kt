@@ -1,14 +1,15 @@
 package com.abhinavmarwaha.walletx.ui.compose
 
 import android.graphics.BitmapFactory
+import android.net.Uri
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -17,10 +18,10 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.db.room.Card
+import com.abhinavmarwaha.walletx.utils.MediaUtils
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import kotlinx.coroutines.launch
@@ -32,11 +33,12 @@ import java.io.FileInputStream
 @OptIn(ExperimentalPagerApi::class)
 @Composable
 fun CardsView(group: String) {
+    val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val cardStore: CardsStore by di.instance()
-    val vm = CardViewModel(cardStore, group)
+    val cards = cardStore.getCards(group).collectAsState(listOf())
 
-    return if (group.compareTo("main") == 0 && vm.cards.size == 0) {
+    return if (cards.value.isEmpty()) {
         Box(
             Modifier
                 .border(border = BorderStroke(10.dp, Color.White))
@@ -46,26 +48,14 @@ fun CardsView(group: String) {
             Text("Add Card", color = Color.Red)
         }
     } else {
-        HorizontalPager(count = vm.cards.size) { page ->
-            val imageFile = FileInputStream(vm.cards[page].image).readBytes()
+        HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
+            Log.e("Image", cards.value[page].image)
+            val imageFile = FileInputStream(MediaUtils.getRealPathFromURI_API19(context, Uri.parse(cards.value[page].image))).readBytes()
             Image(
                 BitmapFactory.decodeByteArray(imageFile, 0, imageFile.size).asImageBitmap(),
-                vm.cards[page].title
+                cards.value[page].title,
+                Modifier.width(200.dp)
             )
-        }
-    }
-
-}
-
-
-class CardViewModel(private val cardStore: CardsStore,private val group: String) : ViewModel() {
-    val cards = mutableStateListOf<Card>()
-
-    init {
-        viewModelScope.launch {
-            cardStore.getCards(group).asFlow().collect {
-                cards.addAll(it)
-            }
         }
     }
 

@@ -5,6 +5,7 @@ import com.abhinavmarwaha.walletx.db.room.Card
 import com.abhinavmarwaha.walletx.db.room.CardDAO
 import com.abhinavmarwaha.walletx.db.ID_UNSET
 import com.abhinavmarwaha.walletx.db.room.CGRelationDao
+import kotlinx.coroutines.flow.Flow
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance
@@ -23,7 +24,7 @@ class CardsStore(override val di: DI) : DIAware {
         }
     }
 
-    fun getCards(group: String): LiveData<List<Card>> = cardDAO.getCards()
+    fun getCards(group: String): Flow<List<Card>> = cardDAO.getCards()
 
     suspend fun getCard(id: Long): Card? = cardDAO.loadCard(id)
 

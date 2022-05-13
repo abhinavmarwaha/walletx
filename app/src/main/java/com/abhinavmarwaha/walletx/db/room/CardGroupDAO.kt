@@ -3,15 +3,16 @@ package com.abhinavmarwaha.walletx.db.room
 import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.abhinavmarwaha.walletx.db.ID_UNSET
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardGroupDAO {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertGroup(group: CardGroup): Long
+    fun insertGroup(group: CardGroup): Long
 
     @Query("SELECT * FROM cards_group_table")
-    fun getGroups() : LiveData<List<CardGroup>>
+    fun getGroups() : Flow<List<CardGroup>>
 
     @Query("SELECT * FROM cards_group_table")
     suspend fun loadGroups(): List<CardGroup>

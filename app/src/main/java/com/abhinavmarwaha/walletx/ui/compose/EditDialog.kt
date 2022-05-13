@@ -29,15 +29,11 @@ fun EditDialog(
                 Text(title)
             },
             text = {
-                Column() {
                     TextField(
                         text.value,
                         onValueChange = { text.value = it },
                         keyboardOptions = keyboardOptions
                     )
-                    Text("Custom Text")
-                    Checkbox(checked = false, onCheckedChange = {})
-                }
             },
             confirmButton = {
                 Button(

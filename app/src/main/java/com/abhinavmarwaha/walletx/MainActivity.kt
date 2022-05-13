@@ -58,7 +58,7 @@ class MainActivity : ComponentActivity(), DIAware {
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { Home(navController) }
-                        composable("addFeed") { AddCardView() }
+                        composable("addFeed") { AddCardView(navController) }
                         composable("allCards") { AllCards() }
                         composable("allNotes") { AllNotes() }
                     }
@@ -79,7 +79,7 @@ fun Home(navController: NavController) {
             Spacer(Modifier.size(10.dp))
             SmallButton({navController.navigate("addFeed") }, "Add", color = DarkRed)
         }
-        NoteView(0)
+        NoteView(1)
         Box(Modifier.padding(vertical = 30.dp)){
             LongButton({ navController.navigate("allNotes")}, "All")
         }

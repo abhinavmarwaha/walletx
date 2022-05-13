@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData
 import com.abhinavmarwaha.walletx.db.room.CGRelationDao
 import com.abhinavmarwaha.walletx.db.room.CardGroup
 import com.abhinavmarwaha.walletx.db.room.CardGroupDAO
+import kotlinx.coroutines.flow.Flow
 import org.kodein.di.DI
 import org.kodein.di.DIAware
 import org.kodein.di.instance
@@ -23,7 +24,7 @@ class CardGroupsStore(override val di: DI) : DIAware {
         }
     }
 
-    fun getCardGroups() : LiveData<List<CardGroup>> {
+    fun getCardGroups() : Flow<List<CardGroup>>{
         return cardGroupDAO.getGroups()
     }
 

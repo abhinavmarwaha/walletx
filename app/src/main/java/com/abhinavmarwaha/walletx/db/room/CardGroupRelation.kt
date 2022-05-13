@@ -20,6 +20,4 @@ const val CARDS_GROUP_RELATION_TABLE_NAME = "cards_group_relation_table"
 data class CardGroupRelation constructor(
     @ColumnInfo(name = COL_GUID) var guid: Long = ID_UNSET,
     @ColumnInfo(name = COL_ID) var id: Long = ID_UNSET,
-) {
-    constructor() : this(id = ID_UNSET, guid = ID_UNSET)
-}
+)

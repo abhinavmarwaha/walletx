@@ -1,8 +1,8 @@
 package com.abhinavmarwaha.walletx.db.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.abhinavmarwaha.walletx.db.ID_UNSET
+import kotlinx.coroutines.flow.Flow
 
 @Dao
 interface CardDAO {
@@ -11,11 +11,7 @@ interface CardDAO {
     suspend fun insertCard(card: Card) : Long
 
     @Query("SELECT * FROM cards_table")
-    fun getCards() : LiveData<List<Card>>
-
-    @Query("SELECT * FROM cards_table")
-    suspend fun loadCards(): List<Card>
-
+    fun getCards() : Flow<List<Card>>
 
     @Query("SELECT * FROM cards_table WHERE 'id' IS :id")
     suspend fun loadCard(id: Long): Card?
