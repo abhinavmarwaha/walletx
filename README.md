@@ -44,15 +44,15 @@ Private and Secure Android Wallet
 ### Coming Soon:
 
 * Share wallet items securely with your family and friends
-* UI Photograph we put in our wallets
+* UI for Photograph we put in our wallets
 
 # Have Suggestions ?
 
-You can add an issue [here](https://github.com/abhinavmarwaha/walletx/issues) or fill up a google form [here]().
+You can add an issue [here](https://github.com/abhinavmarwaha/walletx/issues) or fill up a form [here]().
 
 # ToDo
 
-[Roadmap](https://github.com/abhinavmarwaha/wallet/projects/1)
+[Roadmap](https://github.com/abhinavmarwaha/walletx/projects/1)
 
 # Contact
 
@@ -63,5 +63,6 @@ You can contact me at [abhinavmarwaha@protonmail.com](mailto:abhinavmarwaha@prot
 Best way is btc -> 35Tzo8hTsggF2YENmBUc4ZiMjCKNYjgmHH
 <Br/>
 [Patreon](https://www.patreon.com/abhinavmarwaha)
+[Ko-fi]()
 
 # Credits
