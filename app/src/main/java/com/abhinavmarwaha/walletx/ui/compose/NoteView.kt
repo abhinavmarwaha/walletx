@@ -2,9 +2,11 @@ package com.abhinavmarwaha.walletx.ui.compose
 
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -59,7 +61,7 @@ fun NoteView(id: Long) {
             }
             SmallButton(function = {
                 setShowDialog(true)
-            }, text = "Add", color = DarkRed)
+            }, text = "Add", color = DarkRed, modifier = Modifier)
             EditDialog2(
                 showDialog,
                 setShowDialog,

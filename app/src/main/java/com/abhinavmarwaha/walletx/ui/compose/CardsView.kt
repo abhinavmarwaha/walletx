@@ -37,7 +37,7 @@ fun CardsView(group: String) {
     return if (cards.value.isEmpty()) {
         Box(
             Modifier
-                .border(border = BorderStroke(10.dp, Color.White))
+                .border(border = BorderStroke(2.dp, Color.White))
                 .fillMaxWidth()
                 .height(70.dp), contentAlignment = Alignment.Center
         ) {

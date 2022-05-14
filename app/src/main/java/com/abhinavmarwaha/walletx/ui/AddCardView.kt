@@ -10,26 +10,24 @@ import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.activity.result.launch
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Button
 import androidx.compose.material.Text
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.material.TextField
+import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.unit.dp
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.asFlow
-import androidx.lifecycle.viewModelScope
+import androidx.compose.ui.unit.*
 import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardGroupsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
@@ -39,7 +37,6 @@ import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.LightRed
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
-import com.abhinavmarwaha.walletx.utils.MediaUtils
 import com.google.accompanist.permissions.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
@@ -48,7 +45,7 @@ import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
 
-@OptIn(ExperimentalPermissionsApi::class)
+@OptIn(ExperimentalPermissionsApi::class, ExperimentalUnitApi::class)
 @Composable
 fun AddCardView(navController: NavController) {
     val multiplePermissionsState = rememberMultiplePermissionsState(
@@ -83,25 +80,25 @@ fun AddCardView(navController: NavController) {
 
     val selectedGroups = remember { mutableStateListOf<Long>() }
 
-    Column(Modifier.fillMaxSize()) {
-        Button(
-            onClick = {
-                when (multiplePermissionsState.permissions[1].status) {
-                    is PermissionStatus.Granted -> {
-                        Toast.makeText(
-                            context,
-                            "Permission Granted",
-                            Toast.LENGTH_SHORT
-                        ).show()
-                    }
-                    is PermissionStatus.Denied -> {
-                        multiplePermissionsState.launchMultiplePermissionRequest()
-                    }
-                }
-            }
-        ) {
-            Text(text = "Check and Request Permission")
-        }
+    Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+//        Button(
+//            onClick = {
+//                when (multiplePermissionsState.permissions[1].status) {
+//                    is PermissionStatus.Granted -> {
+//                        Toast.makeText(
+//                            context,
+//                            "Permission Granted",
+//                            Toast.LENGTH_SHORT
+//                        ).show()
+//                    }
+//                    is PermissionStatus.Denied -> {
+//                        multiplePermissionsState.launchMultiplePermissionRequest()
+//                    }
+//                }
+//            }
+//        ) {
+//            Text(text = "Check and Request Permission")
+//        }
         Spacer(Modifier.size(20.dp))
         SmallButton(function = {
             if (selectedGroups.size == 0) {
@@ -114,7 +111,8 @@ fun AddCardView(navController: NavController) {
                 val card = Card()
                 card.title = textState.value.text
 //                val path = MediaUtils.getRealPathFromURI_API19(context,imageData.value)
-                val cryptedFile = ImageCryptor(patternState.pattern!!).encryptBitmap(camBitmap.value!!, context)
+                val cryptedFile =
+                    ImageCryptor(patternState.pattern!!).encryptBitmap(camBitmap.value!!, context)
                 card.image = cryptedFile
 
                 coroutineScope.launch {
@@ -132,20 +130,24 @@ fun AddCardView(navController: NavController) {
                     }
                 }
             }
-        }, text = "Save", color = DarkRed)
+        }, text = "Save", color = DarkRed, modifier = Modifier.align(Alignment.CenterHorizontally))
         Spacer(Modifier.size(20.dp))
         TextField(
+            modifier = Modifier.border(BorderStroke(2.dp, Color.White)),
             value = textState.value,
-            onValueChange = { textState.value = it }
+            onValueChange = { textState.value = it },
+            colors = TextFieldDefaults.textFieldColors(
+                textColor = Color.White,
+            )
         )
         Spacer(Modifier.size(20.dp))
-        if (imageData.value == null)
-            Box(Modifier.align(Alignment.CenterHorizontally)) {
-                LongButton(function = {
+        Box(Modifier.align(Alignment.CenterHorizontally)) {
+            LongButton(function = {
 //                    launcher.launch("image/*")
-                    cameraLauncher.launch()
-                }, text = "Add Image")
-            }
+                cameraLauncher.launch()
+            }, text = if(camBitmap.value == null) "Add Image" else "Edit Image", Modifier)
+        }
+        Spacer(Modifier.height(10.dp))
         camBitmap.let {
             val data = it.value
             if (data != null) {
@@ -180,8 +182,8 @@ fun AddCardView(navController: NavController) {
                 }
             }
         }
-        Spacer(Modifier.size(20.dp))
-        Text("Groups", Modifier.align(Alignment.CenterHorizontally))
+        Spacer(Modifier.size(10.dp))
+        Text("Groups", Modifier.align(Alignment.Start).padding(horizontal = 10.dp), color = Color.White, fontSize = TextUnit(4f, TextUnitType.Em))
         Spacer(Modifier.size(20.dp))
         LazyRow(Modifier.align(Alignment.CenterHorizontally)) {
             items(items = groups.value) { item ->
@@ -193,8 +195,10 @@ fun AddCardView(navController: NavController) {
                             selectedGroups.add(item.guid)
                     },
                     text = item.group,
-                    color = if (selectedGroups.contains(item.guid)) DarkRed else LightRed
+                    color = if (selectedGroups.contains(item.guid)) DarkRed else LightRed,
+                    modifier = Modifier
                 )
+
             }
         }
     }

@@ -3,13 +3,19 @@ package com.abhinavmarwaha.walletx.OnBoarding
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -45,13 +51,13 @@ fun Addlock(){
     }
 
     Column() {
-        Text(title.value)
+        Text(title.value, color = Color.White,modifier=Modifier.fillMaxWidth().padding(vertical = 50.dp), textAlign = TextAlign.Center)
         PatternLock(
             size = 400.dp,
             key = arrayListOf(0, 1, 2),
-            dotColor = Color.Black,
+            dotColor = Color.White,
             dotRadius = 18f,
-            lineColor = Color.Black,
+            lineColor = Color.White,
             lineStroke = 12f,
             callback = object : LockCallback {
                 override fun onStart() {

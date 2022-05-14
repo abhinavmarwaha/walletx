@@ -96,8 +96,7 @@ class MainActivity : ComponentActivity(), DIAware {
             WalletXTheme {
                 Surface(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(20.dp),
+                        .fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
                     val navController = rememberNavController()
@@ -136,9 +135,9 @@ fun Home(navController: NavController) {
             PatternLock(
                 size = 400.dp,
                 key = ArrayList(pattern!!.toCharArray().map { it.digitToInt() }),
-                dotColor = Color.Black,
+                dotColor = Color.White,
                 dotRadius = 18f,
-                lineColor = Color.Black,
+                lineColor = Color.White,
                 lineStroke = 12f,
                 callback = object : LockCallback {
                     override fun onStart() {
@@ -153,7 +152,7 @@ fun Home(navController: NavController) {
                 }
             )
         } else
-            Column(Modifier.fillMaxHeight()) {
+            Column(Modifier.fillMaxHeight().padding(20.dp)) {
                 MoneyView()
                 CardsView("main")
                 Row(
@@ -161,16 +160,19 @@ fun Home(navController: NavController) {
                         .fillMaxWidth()
                         .padding(vertical = 30.dp), verticalAlignment = Alignment.CenterVertically
                 ) {
-                    LongButton({ navController.navigate("allCards") }, "All")
+                    LongButton({ navController.navigate("allCards") }, "All", Modifier.padding())
                     Spacer(Modifier.size(10.dp))
                     SmallButton({
                         navController.navigate("addCard")
-                    }, "Add", color = DarkRed)
+                    }, "Add", color = DarkRed, modifier = Modifier)
                 }
                 NoteView(1)
-                Box(Modifier.padding(vertical = 30.dp)) {
-                    LongButton({ navController.navigate("allNotes") }, "All")
-                }
+                LongButton(
+                    { navController.navigate("allNotes") },
+                    "All",
+                    Modifier.padding(vertical = 30.dp).align(Alignment.CenterHorizontally)
+                )
+
             }
     }
 }

@@ -29,7 +29,7 @@ class ImageCryptor(private val pattern : String) {
     private val TEMP_IMAGE_TAG = "temp_"
 
     init {
-        salt = SHAsum(pattern.toByteArray())
+        salt = SHAsum32Char(pattern.toByteArray())
         key = getKey()
     }
 
@@ -72,6 +72,12 @@ class ImageCryptor(private val pattern : String) {
     fun SHAsum(convertme: ByteArray?): String {
         val md: MessageDigest = MessageDigest.getInstance("SHA-1")
         return byteArray2Hex(md.digest(convertme))
+    }
+
+    @Throws(NoSuchAlgorithmException::class)
+    fun SHAsum32Char(convertme: ByteArray?): String {
+        val md: MessageDigest = MessageDigest.getInstance("SHA-1")
+        return byteArray2Hex(md.digest(convertme)).substring(0, 32)
     }
 
     private fun byteArray2Hex(hash: ByteArray): String {

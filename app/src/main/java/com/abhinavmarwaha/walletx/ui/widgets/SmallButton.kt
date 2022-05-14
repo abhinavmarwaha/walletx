@@ -12,14 +12,15 @@ import androidx.compose.ui.graphics.Color
 
 
 @Composable
-fun SmallButton(function: () -> Unit, text: String, color: Color) {
+fun SmallButton(function: () -> Unit, text: String, color: Color, modifier: Modifier) {
     Button(
+        modifier = modifier,
         colors = ButtonDefaults.buttonColors(containerColor = color),
         onClick = {
             function()
         },
         shape = RoundedCornerShape(50)
     ) {
-        Text(text)
+        Text(text, color=Color.White)
     }
 }
