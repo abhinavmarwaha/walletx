@@ -4,7 +4,7 @@
 </p>
 
 <p align='center'>
-Private and Secure Android Wallet
+Secure and  Private wallet for Android
 </p>
 
 <p align='center'>
@@ -37,12 +37,14 @@ Private and Secure Android Wallet
 
 # Features:
 
-* Store Your Credit cards, id cards, reciepts anything you will in a wallet
+* Completely Offline
+* Store Your Credit cards, id cards, receipts anything you will in a wallet
 * Store Important info like Medicine Names, dates etc
-* everthing is encryppted and locked with a pattern
+* Everything is encrypted and locked with a pattern
 
 ### Coming Soon:
 
+* Backup your Encrypted Database (Manually and with something like seedvault)
 * Share wallet items securely with your family and friends
 * UI for Photograph we put in our wallets
 
@@ -60,9 +62,13 @@ You can contact me at [abhinavmarwaha@protonmail.com](mailto:abhinavmarwaha@prot
 
 # Support
 
-Best way is btc -> 35Tzo8hTsggF2YENmBUc4ZiMjCKNYjgmHH
+Best way is UPI at abhinavmarwaha@ybl
+<Br/>
+Btc -> 35Tzo8hTsggF2YENmBUc4ZiMjCKNYjgmHH
 <Br/>
 [Patreon](https://www.patreon.com/abhinavmarwaha)
-[Ko-fi]()
+<Br/>
+[Ko-fi](https://ko-fi.com/abhinavmarwaha)
+
 
 # Credits
