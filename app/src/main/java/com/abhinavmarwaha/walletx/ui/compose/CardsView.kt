@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
+import com.abhinavmarwaha.walletx.models.patternState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import org.kodein.di.DI
@@ -45,7 +46,7 @@ fun CardsView(group: String) {
     } else {
         HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
             Log.e("Image", cards.value[page].image)
-            val file = ImageCryptor.decryptBitmap(cards.value[page].image, context)
+            val file = ImageCryptor(patternState.pattern!!).decryptBitmap(cards.value[page].image, context)
             Log.e("Image", file?.path.toString())
             val imageFile = FileInputStream(file!!).readBytes()
             Log.e("Image", imageFile.toString())

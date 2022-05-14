@@ -25,6 +25,8 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.datastore.core.DataStore
+import androidx.datastore.preferences.core.Preferences
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asFlow
 import androidx.lifecycle.viewModelScope
@@ -32,6 +34,7 @@ import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardGroupsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
 import com.abhinavmarwaha.walletx.db.room.*
+import com.abhinavmarwaha.walletx.models.patternState
 import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.LightRed
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
@@ -111,7 +114,7 @@ fun AddCardView(navController: NavController) {
                 val card = Card()
                 card.title = textState.value.text
 //                val path = MediaUtils.getRealPathFromURI_API19(context,imageData.value)
-                val cryptedFile = ImageCryptor.encryptBitmap(camBitmap.value!!, context)
+                val cryptedFile = ImageCryptor(patternState.pattern!!).encryptBitmap(camBitmap.value!!, context)
                 card.image = cryptedFile
 
                 coroutineScope.launch {

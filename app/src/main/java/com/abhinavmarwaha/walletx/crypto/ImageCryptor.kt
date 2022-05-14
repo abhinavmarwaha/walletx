@@ -17,18 +17,19 @@ import javax.crypto.*
 import javax.crypto.spec.SecretKeySpec
 
 
-object ImageCryptor {
-    private const val TAG = "ImageCrypter"
+class ImageCryptor(private val pattern : String) {
+    private val TAG = "ImageCrypter"
 
-    private const val ALGORITHM = "AES"
+    private val ALGORITHM = "AES"
 
     private var key: SecretKey? = null
 
     private var salt = "A8768CC5BEAA6093"
 
-    private const val TEMP_IMAGE_TAG = "temp_"
+    private val TEMP_IMAGE_TAG = "temp_"
 
     init {
+        salt = SHAsum(pattern.toByteArray())
         key = getKey()
     }
 

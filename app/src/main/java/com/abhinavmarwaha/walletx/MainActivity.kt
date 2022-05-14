@@ -33,6 +33,7 @@ import com.abhinavmarwaha.walletx.di.archModelModule
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.Money
+import com.abhinavmarwaha.walletx.models.patternState
 import com.abhinavmarwaha.walletx.ui.AddCardView
 import com.abhinavmarwaha.walletx.ui.AllCards
 import com.abhinavmarwaha.walletx.ui.AllNotes
@@ -130,6 +131,7 @@ fun Home(navController: NavController) {
         Addlock()
     } else if (pattern!!.isEmpty()) Text("Loading")
     else {
+        patternState.pattern = pattern
         if (!correct) {
             PatternLock(
                 size = 400.dp,
