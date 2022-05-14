@@ -19,6 +19,7 @@ import com.abhinavmarwaha.walletx.ui.compose.CardsView
 import com.abhinavmarwaha.walletx.ui.compose.EditDialog
 import com.abhinavmarwaha.walletx.ui.compose.MoneyViewModel
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -60,7 +61,9 @@ fun AllCards(){
                 coroutineScope.launch {
                     val group = CardGroup()
                     group.group = addGroupTitle.value
-                    cardGroupDAO.insertGroup(group)
+                    CoroutineScope(Dispatchers.IO).launch {
+                        cardGroupDAO.insertGroup(group)
+                    }
                 }
             }
         }

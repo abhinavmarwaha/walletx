@@ -71,6 +71,7 @@ dependencies {
 
     // Dependency injection
     implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
+    implementation 'androidx.compose.runtime:runtime-livedata:1.1.1'
 
     // Images
     implementation "com.github.skydoves:landscapist-glide:1.5.1"

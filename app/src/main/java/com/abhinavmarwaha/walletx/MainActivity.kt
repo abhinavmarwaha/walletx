@@ -9,6 +9,8 @@ import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -18,6 +20,7 @@ import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.asLiveData
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
@@ -100,7 +103,7 @@ class MainActivity : ComponentActivity(), DIAware {
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { Home(navController) }
-                        composable("addFeed") { AddCardView(navController) }
+                        composable("addCard") { AddCardView(navController) }
                         composable("allCards") { AllCards() }
                         composable("allNotes") { AllNotes() }
                     }
@@ -115,21 +118,22 @@ private val PATTERN = stringPreferencesKey("pattern")
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Home(navController: NavController) {
-    val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
     val vm = HomeViewModel(dataStore)
-    var correct by remember {
+    var correct by rememberSaveable {
         mutableStateOf(false)
     }
+    val pattern: String? by vm.patternFlow.asLiveData().observeAsState()
 
-    if (vm.pattern == null) {
+    if (pattern == null) {
         Addlock()
-    } else {
-        if (!correct)
+    } else if (pattern!!.isEmpty()) Text("Loading")
+    else {
+        if (!correct) {
             PatternLock(
                 size = 400.dp,
-                key = ArrayList(vm.pattern!!.toCharArray().map { it.digitToInt() }),
+                key = ArrayList(pattern!!.toCharArray().map { it.digitToInt() }),
                 dotColor = Color.Black,
                 dotRadius = 18f,
                 lineColor = Color.Black,
@@ -137,15 +141,16 @@ fun Home(navController: NavController) {
                 callback = object : LockCallback {
                     override fun onStart() {
                     }
+
                     override fun onProgress(index: Int) {
                     }
+
                     override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
-                        Log.e("Lock", isCorrect.toString() + vm.pattern)
                         correct = isCorrect
                     }
                 }
             )
-        else
+        } else
             Column(Modifier.fillMaxHeight()) {
                 MoneyView()
                 CardsView("main")
@@ -157,13 +162,7 @@ fun Home(navController: NavController) {
                     LongButton({ navController.navigate("allCards") }, "All")
                     Spacer(Modifier.size(10.dp))
                     SmallButton({
-                        navController.navigate("addFeed") {
-                            popUpTo(navController.graph.findStartDestination().id) {
-                                saveState = true
-                            }
-                            launchSingleTop = true
-                            restoreState = true
-                        }
+                        navController.navigate("addCard")
                     }, "Add", color = DarkRed)
                 }
                 NoteView(1)
@@ -175,18 +174,8 @@ fun Home(navController: NavController) {
 }
 
 class HomeViewModel constructor(private val dataStore: DataStore<Preferences>) : ViewModel() {
-    var pattern: String? = null
-
-    private val firstTimeFlow: Flow<String?> = dataStore.data
+    val patternFlow: Flow<String?> = dataStore.data
         .map { preferences ->
             preferences[PATTERN]
         }
-
-    init {
-        viewModelScope.launch {
-            firstTimeFlow.collect {
-                pattern = it
-            }
-        }
-    }
 }
