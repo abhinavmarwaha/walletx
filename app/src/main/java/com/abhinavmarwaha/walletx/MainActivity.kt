@@ -24,6 +24,7 @@ import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.abhinavmarwaha.walletx.OnBoarding.Addlock
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
 import com.abhinavmarwaha.walletx.lock.LockCallback
@@ -109,75 +110,38 @@ class MainActivity : ComponentActivity(), DIAware {
     }
 }
 
-private val FIRSTTIME = booleanPreferencesKey("firstTime")
+private val PATTERN = stringPreferencesKey("pattern")
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Home(navController: NavController) {
-
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
     val vm = HomeViewModel(dataStore)
-    val correct by remember {
+    var correct by remember {
         mutableStateOf(false)
     }
 
-    if (vm.isFirstTime) {
-        PatternLock(
-            size = 400.dp,
-            // key -> sorted list of dots id that must connect
-            key = arrayListOf(0, 1, 2),
-            dotColor = Color.White,
-            dotRadius = 18f,
-            lineColor = Color.White,
-            lineStroke = 12f,
-            callback = object : LockCallback {
-                override fun onStart() {
-                    // when wirting pattern start
-                }
-
-                override fun onProgress(index: Int) {
-                    // when writing and new dot connected
-                    // index -> dot id
-                    // dots are sorted from left to right and up to down
-                }
-
-                override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
-                    // when writing pattern end
-                    // result -> connected dots during writing
-                    // isCorrect -> check if writed pattern correct based on key parameter
-
-                }
-            }
-        )
-
+    if (vm.pattern == null) {
+        Addlock()
     } else {
         if (!correct)
             PatternLock(
                 size = 400.dp,
-                // key -> sorted list of dots id that must connect
-                key = arrayListOf(0, 1, 2),
-                dotColor = Color.White,
+                key = ArrayList(vm.pattern!!.toCharArray().map { it.digitToInt() }),
+                dotColor = Color.Black,
                 dotRadius = 18f,
-                lineColor = Color.White,
+                lineColor = Color.Black,
                 lineStroke = 12f,
                 callback = object : LockCallback {
                     override fun onStart() {
-                        // when wirting pattern start
                     }
-
                     override fun onProgress(index: Int) {
-                        // when writing and new dot connected
-                        // index -> dot id
-                        // dots are sorted from left to right and up to down
                     }
-
                     override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
-                        // when writing pattern end
-                        // result -> connected dots during writing
-                        // isCorrect -> check if writed pattern correct based on key parameter
-
+                        Log.e("Lock", isCorrect.toString() + vm.pattern)
+                        correct = isCorrect
                     }
                 }
             )
@@ -211,28 +175,18 @@ fun Home(navController: NavController) {
 }
 
 class HomeViewModel constructor(private val dataStore: DataStore<Preferences>) : ViewModel() {
-    var isFirstTime: Boolean = true
+    var pattern: String? = null
 
-    private val firstTimeFlow: Flow<Boolean> = dataStore.data
+    private val firstTimeFlow: Flow<String?> = dataStore.data
         .map { preferences ->
-            preferences[FIRSTTIME] ?: true
+            preferences[PATTERN]
         }
 
     init {
         viewModelScope.launch {
             firstTimeFlow.collect {
-                isFirstTime = it
+                pattern = it
             }
         }
     }
-
-
-    fun completeOnBoarding() {
-        viewModelScope.launch {
-            dataStore.edit { store ->
-                store[FIRSTTIME] = false
-            }
-        }
-    }
-
 }
