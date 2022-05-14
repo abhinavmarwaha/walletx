@@ -1,6 +1,5 @@
 package com.abhinavmarwaha.walletx.crypto
 
-import android.R.attr.bitmap
 import android.content.Context
 import android.graphics.Bitmap
 import android.os.CountDownTimer
@@ -19,27 +18,20 @@ import javax.crypto.spec.SecretKeySpec
 
 
 object ImageCryptor {
-
     private const val TAG = "ImageCrypter"
 
-    //Algorithm
     private const val ALGORITHM = "AES"
 
-    //encryption variables
     private var key: SecretKey? = null
 
-    // 128-Bit Key
     private var salt = "A8768CC5BEAA6093"
 
-    //Image Name
-    const val TEMP_IMAGE_TAG = "temp_"
+    private const val TEMP_IMAGE_TAG = "temp_"
 
     init {
-        // Get key
         key = getKey()
     }
 
-    //Keep image for 5 seconds
     private fun deleteFileAfterView(path: String) {
         val timer = object : CountDownTimer(20000, 1000) {
             override fun onTick(millisUntilFinished: Long) {}
@@ -52,7 +44,6 @@ object ImageCryptor {
     }
 
     fun getDecryptedImageIfExists(originalFilePath: String): Pair<Boolean, String> {
-
         val filePath = getImageParentPath(originalFilePath)
         val imageName = getImageNameFromPath(originalFilePath)
         val file = File(filePath, "$TEMP_IMAGE_TAG$imageName")
@@ -65,7 +56,6 @@ object ImageCryptor {
     }
 
     fun encryptImageList(imagesList: ArrayList<String>): List<File> {
-
         val listSize = imagesList.size
         var count = 0
 
@@ -75,7 +65,6 @@ object ImageCryptor {
         }
 
         return listOfEncryptedFiles
-
     }
 
     @Throws(NoSuchAlgorithmException::class)
@@ -124,8 +113,7 @@ object ImageCryptor {
 
     }
 
-    fun encryptImage(originalFilePath: String): File {
-
+    private fun encryptImage(originalFilePath: String): File {
         val encryptedImagePath = createCopyOfOriginalFile(originalFilePath)
         try {
             val fis = FileInputStream(originalFilePath)
@@ -150,18 +138,14 @@ object ImageCryptor {
             e.printStackTrace()
         }
 
-        //Delete original file
         deleteFile(originalFilePath)
 
-        //Rename encrypted image file to original name
         val createdFile = renameImageToOriginalFileName(encryptedImagePath)
         return File(createdFile)
 
     }
 
-    fun decryptImage(originalFilePath: String): File {
-
-
+    private fun decryptImage(originalFilePath: String): File {
         val decryptedFilePath = createCopyOfOriginalFile(originalFilePath)
 
         val fis = FileInputStream(originalFilePath)
@@ -174,23 +158,14 @@ object ImageCryptor {
             File(decryptedFilePath).outputStream().use {
                 out.copyTo(it)
             }
-
         } catch (ex: NoSuchAlgorithmException) {
             ex.printStackTrace()
-
-
         } catch (ex: NoSuchPaddingException) {
             ex.printStackTrace()
-
-
         } catch (ex: InvalidKeyException) {
             ex.printStackTrace()
-
-
         } catch (ex: IOException) {
             ex.printStackTrace()
-
-
         }
 
         deleteFileAfterView(decryptedFilePath)
@@ -208,7 +183,10 @@ object ImageCryptor {
             val aes = Cipher.getInstance(ALGORITHM)
             aes.init(Cipher.DECRYPT_MODE, key)
             val out = CipherInputStream(fis, aes)
-
+            val file = File(context.cacheDir, tempDecrypted)
+            file.outputStream().use {
+                out.copyTo(it)
+            }
             val timer = object : CountDownTimer(20000, 1000) {
                 override fun onTick(millisUntilFinished: Long) {}
 
@@ -217,10 +195,6 @@ object ImageCryptor {
                 }
             }
             timer.start()
-            val file = File(context.cacheDir, tempDecrypted)
-            file.outputStream().use {
-                out.copyTo(it)
-            }
             return file
         } catch (ex: NoSuchAlgorithmException) {
             ex.printStackTrace()
@@ -237,7 +211,6 @@ object ImageCryptor {
 
 
     fun decryptFiles(lisOfEncryptedFiles: ArrayList<String>): List<File> {
-
         val listOfDecryptedFiles = arrayListOf<File>()
         lisOfEncryptedFiles.forEach {
             listOfDecryptedFiles.add(decryptImage(it))
@@ -269,12 +242,11 @@ object ImageCryptor {
         val originalFile = File(originalFilePath)
         val copyFile = File(filePath, "$TEMP_IMAGE_TAG$imageName")
 
-        //Create a copy of original file
-//        try {
+        try {
             FileUtils.copy(originalFile, copyFile)
-//        } catch (ex: IOException) {
-//            ex.printStackTrace()
-//        }
+        } catch (ex: IOException) {
+            ex.printStackTrace()
+        }
 
         return copyFile.path
     }
@@ -303,7 +275,6 @@ object ImageCryptor {
     }
 
     private fun getKey(): SecretKey? {
-
         var secretKey: SecretKey? = null
 
         try {

@@ -48,6 +48,7 @@ fun CardsView(group: String) {
             val file = ImageCryptor.decryptBitmap(cards.value[page].image, context)
             Log.e("Image", file?.path.toString())
             val imageFile = FileInputStream(file!!).readBytes()
+            Log.e("Image", imageFile.toString())
             Image(
                 BitmapFactory.decodeByteArray(imageFile, 0, imageFile.size).asImageBitmap(),
                 cards.value[page].title,
