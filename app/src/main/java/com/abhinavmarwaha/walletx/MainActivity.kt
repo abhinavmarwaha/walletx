@@ -13,8 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.PreferenceDataStoreFactory
-import androidx.datastore.preferences.core.Preferences
+import androidx.datastore.preferences.core.*
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -39,7 +38,10 @@ import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import io.github.osipxd.datastore.encrypted.createEncrypted
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.map
 import org.kodein.di.*
+import org.kodein.di.android.closestDI
 import java.io.File
 
 class MainActivity : ComponentActivity(), DIAware {
@@ -54,7 +56,7 @@ class MainActivity : ComponentActivity(), DIAware {
         bind<CGRelationDao>() with singleton { instance<AppDatabase>().cgRelationDao() }
         bind<NotesDao>() with singleton { instance<AppDatabase>().notesDao() }
 
-        AeadConfig.register();
+        AeadConfig.register()
 
         val aead = AndroidKeysetManager.Builder()
             .withSharedPref(context, "master_keyset", "master_key_preference")
@@ -64,9 +66,10 @@ class MainActivity : ComponentActivity(), DIAware {
             .keysetHandle
             .getPrimitive(Aead::class.java)
 
-        val dataStore: DataStore<Preferences> = PreferenceDataStoreFactory.createEncrypted(aead) {
+        bind<DataStore<Preferences>>() with singleton { PreferenceDataStoreFactory.createEncrypted(aead) {
             File(context.filesDir, "datastore.preferences_pb")
-        }
+        }}
+        val dataStore: DataStore<Preferences> by instance()
 
         bind<Money>() with singleton { Money(dataStore) }
 
@@ -100,11 +103,25 @@ class MainActivity : ComponentActivity(), DIAware {
 @Composable
 fun Home(navController: NavController) {
 
-    var firtsTime = remember { mutableStateOf(true) }
-    if (firtsTime.value) {
-        LocalContext.current.startActivity(Intent(LocalContext.current, LockedActivity::class.java))
-        firtsTime.value = false
+    val context = LocalContext.current
+    val di: DI by closestDI(LocalContext.current)
+    val dataStore: DataStore<Preferences> by di.instance()
+    val vm = HomeViewModel(dataStore)
+    val firstState = vm.firstTimeFlow.collectAsState(true)
+
+    if(firstState.value){
+        val intent = Intent(context, LockedActivity::class.java)
+        intent.putExtra("setPattern",true)
+        context.startActivity(intent)
     }
+
+    LaunchedEffect(Unit) {
+        if(!firstState.value){
+            context.startActivity(Intent(context, LockedActivity::class.java))
+        }
+    }
+
+
 
     Column(Modifier.fillMaxHeight()) {
         MoneyView()
@@ -131,4 +148,21 @@ fun Home(navController: NavController) {
             LongButton({ navController.navigate("allNotes") }, "All")
         }
     }
+}
+
+class HomeViewModel constructor(private val dataStore: DataStore<Preferences>){
+
+    private val FIRSTTIME = booleanPreferencesKey("firstTime")
+
+    val firstTimeFlow: Flow<Boolean> = dataStore.data
+        .map { preferences ->
+            preferences[FIRSTTIME] ?: true
+        }
+
+    suspend fun setFirstTime(firstTime: Boolean) {
+        dataStore.edit { first ->
+            first[FIRSTTIME] = firstTime
+        }
+    }
+
 }
