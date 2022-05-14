@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.modifier.modifierLocalConsumer
 import androidx.compose.ui.platform.LocalContext
@@ -48,12 +49,12 @@ fun AllCards() {
 
     val coroutineScope = rememberCoroutineScope()
 
-    Column() {
+    Column(Modifier.padding(30.dp)) {
         LongButton(function = {
             editing.value = false
             editGroupId.value = 0
             setShowDialog(true)
-        }, text = "Add", Modifier.padding(30.dp))
+        }, text = "Add", Modifier.padding(30.dp).align(Alignment.CenterHorizontally))
         LazyColumn() {
             items(items = groups.value) { item ->
                 Column() {

@@ -8,6 +8,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
@@ -38,7 +39,7 @@ fun AllNotes() {
     val addNoteTitle = remember { mutableStateOf("") }
     val coroutineScope = rememberCoroutineScope()
 
-    LazyColumn(Modifier.fillMaxHeight()) {
+    LazyColumn(Modifier.fillMaxHeight().padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         item{LongButton(function = { setShowDialog(true) }, text = "Add", Modifier.padding(30.dp))}
         items(items = vm.notes) { item ->
             NoteView(item.id)
