@@ -1,12 +1,10 @@
 package com.abhinavmarwaha.walletx.ui.compose
 
 import android.util.Log
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.border
+import android.widget.Toast
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Text
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -30,13 +28,17 @@ import org.kodein.di.instance
 @Composable
 fun NoteView(id: Long) {
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
-
+    val (showNoteEdit, setNoteEdit) = remember { mutableStateOf(false) }
+    val editing = remember { mutableStateOf(false) }
+    var oldPair = Pair("", "")
+    val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val notesStore: NotesStore by di.instance()
     val vm = NotesViewModel(notesStore, id)
 
     val addKey = remember { mutableStateOf("") }
     val addValue = remember { mutableStateOf("") }
+    val editTitle = remember { mutableStateOf("") }
 
     val coroutineScope = rememberCoroutineScope()
 
@@ -46,13 +48,26 @@ fun NoteView(id: Long) {
             .fillMaxWidth()
             .padding(20.dp)
     ) {
-        Column(horizontalAlignment = Alignment.End) {
-            Text(vm.note.value.title)
+        Column(horizontalAlignment = Alignment.Start) {
+            Text(
+                vm.note.value.title,
+                color = Color.White,
+                modifier = Modifier.clickable {
+                    editTitle.value = vm.note.value.title
+                    setNoteEdit(true)
+                })
             vm.note.value.keyValues.map {
                 Row(
                     Modifier
                         .padding(20.dp)
-                        .fillMaxWidth(),
+                        .fillMaxWidth()
+                        .clickable {
+                            addKey.value = it.first
+                            addValue.value = it.second
+                            editing.value = true
+                            oldPair = it
+                            setShowDialog(true)
+                        },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Text(it.first)
@@ -60,6 +75,9 @@ fun NoteView(id: Long) {
                 }
             }
             SmallButton(function = {
+                addKey.value = ""
+                addValue.value = ""
+                editing.value = false
                 setShowDialog(true)
             }, text = "Add", color = DarkRed, modifier = Modifier)
             EditDialog2(
@@ -70,17 +88,63 @@ fun NoteView(id: Long) {
                 "Add Info",
                 "Name",
                 "Value",
+                onNegativeClick = {
+                    if (editing.value) {
+                        coroutineScope.launch {
+                            val result = withContext(Dispatchers.IO) {
+                                vm.note.value.keyValues.drop(
+                                    vm.note.value.keyValues.indexOf(
+                                        oldPair
+                                    )
+                                )
+                                val result = withContext(Dispatchers.IO) {
+                                    notesStore.upsertNote(vm.note.value)
+                                }
+                            }
+                        }
+                    }
+                },
+                negativeText = if (editing.value) "Delete" else "Dismiss"
             ) {
                 if (addKey.value.isNotEmpty()) {
                     coroutineScope.launch {
                         val keyVal = Pair(addKey.value, addValue.value)
                         val newKeyValues = mutableListOf<Pair<String, String>>()
+
+                        if (editing.value) vm.note.value.keyValues.drop(
+                            vm.note.value.keyValues.indexOf(
+                                oldPair
+                            )
+                        )
+
                         newKeyValues.addAll(vm.note.value.keyValues)
                         newKeyValues.add(keyVal)
                         vm.note.value.keyValues = newKeyValues
                         val result = withContext(Dispatchers.IO) {
                             notesStore.upsertNote(vm.note.value)
                         }
+                    }
+                } else {
+                    Toast.makeText(context, "Name can't be empty", Toast.LENGTH_SHORT).show()
+                }
+            }
+            EditDialog(
+                showDialog = showNoteEdit,
+                setShowDialog = setNoteEdit,
+                text = editTitle,
+                title = "Group",
+                negativeText = "Delete",
+                onNegativeClick = {
+                    coroutineScope.launch {
+                        val result = withContext(Dispatchers.IO) {
+                            notesStore.deleteNote(vm.note.value.id)
+                        }
+                    }
+                }) {
+                vm.note.value.title = editTitle.value
+                coroutineScope.launch {
+                    val result = withContext(Dispatchers.IO) {
+                        notesStore.upsertNote(vm.note.value)
                     }
                 }
             }

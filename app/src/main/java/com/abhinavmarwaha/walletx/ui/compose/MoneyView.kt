@@ -88,7 +88,9 @@ fun MoneyView() {
             setShowDialog,
             editMoney,
             editMoneyTitle.value,
-            KeyboardOptions(keyboardType = KeyboardType.Number)
+            KeyboardOptions(keyboardType = KeyboardType.Number),
+            onNegativeClick = {},
+            negativeText = "Dismiss"
         ) {
             if (editMoney.value.isEmpty()) editMoney.value = "0"
             if (editMoneyTitle.value.compareTo("Cash") == 0) {

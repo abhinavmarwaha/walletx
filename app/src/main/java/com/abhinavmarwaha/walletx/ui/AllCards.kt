@@ -1,5 +1,6 @@
 package com.abhinavmarwaha.walletx.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -32,8 +33,8 @@ import org.kodein.di.android.closestDI
 import org.kodein.di.instance
 
 @Composable
-fun AllCards(){
-    val (showDialog, setShowDialog) =  remember { mutableStateOf(false) }
+fun AllCards() {
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
 
     val di: DI by closestDI(LocalContext.current)
     val cardGroupsStore: CardGroupsStore by di.instance()
@@ -41,16 +42,26 @@ fun AllCards(){
     val groups = cardGroupsStore.getCardGroups().collectAsState(listOf())
 
     val addGroupTitle = remember { mutableStateOf("") }
+    val editGroupTitle = remember { mutableStateOf("") }
+    val editGroupId = remember { mutableStateOf(0L) }
+    val editing = remember { mutableStateOf(false) }
 
     val coroutineScope = rememberCoroutineScope()
 
     Column() {
-        LongButton(function = {setShowDialog(true)}, text = "Add", Modifier.padding(30.dp))
-        LazyColumn(){
-            items(items = groups.value) {
-                    item ->
+        LongButton(function = {
+            editing.value = false
+            editGroupId.value = 0
+            setShowDialog(true)
+        }, text = "Add", Modifier.padding(30.dp))
+        LazyColumn() {
+            items(items = groups.value) { item ->
                 Column() {
-                    Text(item.group)
+                    Text(item.group, modifier = Modifier.clickable {
+                        editGroupTitle.value = item.group
+                        editGroupId.value = item.guid
+                        editing.value = true
+                    })
                     CardsView(group = item.group)
                 }
             }
@@ -60,8 +71,18 @@ fun AllCards(){
             setShowDialog,
             addGroupTitle,
             "Group Name",
+            onNegativeClick = {
+                if (editing.value) {
+                    coroutineScope.launch {
+                        CoroutineScope(Dispatchers.IO).launch {
+                            cardGroupDAO.deleteGroups(listOf(editGroupId.value))
+                        }
+                    }
+                }
+            },
+            negativeText = if(editing.value) "Delete" else "Dismiss"
         ) {
-            if(addGroupTitle.value.isNotEmpty()) {
+            if (addGroupTitle.value.isNotEmpty()) {
                 coroutineScope.launch {
                     val group = CardGroup()
                     group.group = addGroupTitle.value

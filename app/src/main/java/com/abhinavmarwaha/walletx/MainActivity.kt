@@ -132,27 +132,32 @@ fun Home(navController: NavController) {
     else {
         patternState.pattern = pattern
         if (!correct) {
-            PatternLock(
-                size = 400.dp,
-                key = ArrayList(pattern!!.toCharArray().map { it.digitToInt() }),
-                dotColor = Color.White,
-                dotRadius = 18f,
-                lineColor = Color.White,
-                lineStroke = 12f,
-                callback = object : LockCallback {
-                    override fun onStart() {
-                    }
+            Box(modifier = Modifier.padding(paddingValues = PaddingValues(top = 50.dp))){
+                PatternLock(
+                    size = 400.dp,
+                    key = ArrayList(pattern!!.toCharArray().map { it.digitToInt() }),
+                    dotColor = Color.White,
+                    dotRadius = 18f,
+                    lineColor = Color.White,
+                    lineStroke = 12f,
+                    callback = object : LockCallback {
+                        override fun onStart() {
+                        }
 
-                    override fun onProgress(index: Int) {
-                    }
+                        override fun onProgress(index: Int) {
+                        }
 
-                    override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
-                        correct = isCorrect
+                        override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
+                            correct = isCorrect
+                        }
                     }
-                }
-            )
+                )
+            }
         } else
-            Column(Modifier.fillMaxHeight().padding(20.dp)) {
+            Column(
+                Modifier
+                    .fillMaxHeight()
+                    .padding(20.dp)) {
                 MoneyView()
                 CardsView("main")
                 Row(
@@ -170,7 +175,9 @@ fun Home(navController: NavController) {
                 LongButton(
                     { navController.navigate("allNotes") },
                     "All",
-                    Modifier.padding(vertical = 30.dp).align(Alignment.CenterHorizontally)
+                    Modifier
+                        .padding(vertical = 30.dp)
+                        .align(Alignment.CenterHorizontally)
                 )
 
             }

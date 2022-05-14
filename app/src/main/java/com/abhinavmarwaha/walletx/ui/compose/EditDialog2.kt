@@ -20,6 +20,8 @@ fun EditDialog2(
     lbl2: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
     keyboardOptions2: KeyboardOptions = KeyboardOptions(),
+    negativeText: String,
+    onNegativeClick: () -> Unit,
     onPositiveClick: () -> Unit
 ) {
     if (showDialog) {
@@ -59,10 +61,11 @@ fun EditDialog2(
             dismissButton = {
                 Button(
                     onClick = {
+                        onNegativeClick()
                         setShowDialog(false)
                     },
                 ) {
-                    Text("Dismiss")
+                    Text(negativeText)
                 }
             },
         )

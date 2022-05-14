@@ -48,7 +48,9 @@ fun AllNotes() {
                 showDialog,
                 setShowDialog,
                 addNoteTitle,
-                "Note Title"
+                "Note Title",
+                negativeText = "Dismiss",
+                onNegativeClick = {}
             ) {
                 if (addNoteTitle.value.isNotEmpty()) {
                     coroutineScope.launch {

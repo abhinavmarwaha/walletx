@@ -1,15 +1,12 @@
 package com.abhinavmarwaha.walletx.ui.compose
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material.Checkbox
 import androidx.compose.material.TextField
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
-import androidx.compose.ui.text.input.KeyboardType
 
 @Composable
 fun EditDialog(
@@ -18,6 +15,8 @@ fun EditDialog(
     text: MutableState<String>,
     title: String,
     keyboardOptions: KeyboardOptions = KeyboardOptions(),
+    negativeText: String,
+    onNegativeClick: () -> Unit,
     onPositiveClick: () -> Unit
 ) {
     if (showDialog) {
@@ -48,10 +47,11 @@ fun EditDialog(
             dismissButton = {
                 Button(
                     onClick = {
+                        onNegativeClick()
                         setShowDialog(false)
                     },
                 ) {
-                    Text("Dismiss")
+                    Text(negativeText)
                 }
             },
         )
