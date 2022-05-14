@@ -3,17 +3,22 @@ package com.abhinavmarwaha.walletx
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
@@ -21,7 +26,8 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
-import com.abhinavmarwaha.walletx.lock.LockedActivity
+import com.abhinavmarwaha.walletx.lock.LockCallback
+import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.Money
 import com.abhinavmarwaha.walletx.ui.AddCardView
 import com.abhinavmarwaha.walletx.ui.AllCards
@@ -40,6 +46,7 @@ import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import io.github.osipxd.datastore.encrypted.createEncrypted
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.launch
 import org.kodein.di.*
 import org.kodein.di.android.closestDI
 import java.io.File
@@ -66,9 +73,11 @@ class MainActivity : ComponentActivity(), DIAware {
             .keysetHandle
             .getPrimitive(Aead::class.java)
 
-        bind<DataStore<Preferences>>() with singleton { PreferenceDataStoreFactory.createEncrypted(aead) {
-            File(context.filesDir, "datastore.preferences_pb")
-        }}
+        bind<DataStore<Preferences>>() with singleton {
+            PreferenceDataStoreFactory.createEncrypted(aead) {
+                File(context.filesDir, "datastore.preferences_pb")
+            }
+        }
         val dataStore: DataStore<Preferences> by instance()
 
         bind<Money>() with singleton { Money(dataStore) }
@@ -100,6 +109,9 @@ class MainActivity : ComponentActivity(), DIAware {
     }
 }
 
+private val FIRSTTIME = booleanPreferencesKey("firstTime")
+
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun Home(navController: NavController) {
 
@@ -107,61 +119,119 @@ fun Home(navController: NavController) {
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
     val vm = HomeViewModel(dataStore)
-    val firstState = vm.firstTimeFlow.collectAsState(true)
-
-    if(firstState.value){
-        val intent = Intent(context, LockedActivity::class.java)
-        intent.putExtra("setPattern",true)
-        context.startActivity(intent)
+    val correct by remember {
+        mutableStateOf(false)
     }
 
-    LaunchedEffect(Unit) {
-        if(!firstState.value){
-            context.startActivity(Intent(context, LockedActivity::class.java))
-        }
-    }
-
-
-
-    Column(Modifier.fillMaxHeight()) {
-        MoneyView()
-        CardsView("main")
-        Row(
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 30.dp), verticalAlignment = Alignment.CenterVertically
-        ) {
-            LongButton({ navController.navigate("allCards") }, "All")
-            Spacer(Modifier.size(10.dp))
-            SmallButton({
-                navController.navigate("addFeed") {
-                    popUpTo(navController.graph.findStartDestination().id) {
-                        saveState = true
-                    }
-                    launchSingleTop = true
-                    restoreState = true
+    if (vm.isFirstTime) {
+        PatternLock(
+            size = 400.dp,
+            // key -> sorted list of dots id that must connect
+            key = arrayListOf(0, 1, 2),
+            dotColor = Color.White,
+            dotRadius = 18f,
+            lineColor = Color.White,
+            lineStroke = 12f,
+            callback = object : LockCallback {
+                override fun onStart() {
+                    // when wirting pattern start
                 }
-            }, "Add", color = DarkRed)
-        }
-        NoteView(1)
-        Box(Modifier.padding(vertical = 30.dp)) {
-            LongButton({ navController.navigate("allNotes") }, "All")
-        }
+
+                override fun onProgress(index: Int) {
+                    // when writing and new dot connected
+                    // index -> dot id
+                    // dots are sorted from left to right and up to down
+                }
+
+                override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
+                    // when writing pattern end
+                    // result -> connected dots during writing
+                    // isCorrect -> check if writed pattern correct based on key parameter
+
+                }
+            }
+        )
+
+    } else {
+        if (!correct)
+            PatternLock(
+                size = 400.dp,
+                // key -> sorted list of dots id that must connect
+                key = arrayListOf(0, 1, 2),
+                dotColor = Color.White,
+                dotRadius = 18f,
+                lineColor = Color.White,
+                lineStroke = 12f,
+                callback = object : LockCallback {
+                    override fun onStart() {
+                        // when wirting pattern start
+                    }
+
+                    override fun onProgress(index: Int) {
+                        // when writing and new dot connected
+                        // index -> dot id
+                        // dots are sorted from left to right and up to down
+                    }
+
+                    override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
+                        // when writing pattern end
+                        // result -> connected dots during writing
+                        // isCorrect -> check if writed pattern correct based on key parameter
+
+                    }
+                }
+            )
+        else
+            Column(Modifier.fillMaxHeight()) {
+                MoneyView()
+                CardsView("main")
+                Row(
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 30.dp), verticalAlignment = Alignment.CenterVertically
+                ) {
+                    LongButton({ navController.navigate("allCards") }, "All")
+                    Spacer(Modifier.size(10.dp))
+                    SmallButton({
+                        navController.navigate("addFeed") {
+                            popUpTo(navController.graph.findStartDestination().id) {
+                                saveState = true
+                            }
+                            launchSingleTop = true
+                            restoreState = true
+                        }
+                    }, "Add", color = DarkRed)
+                }
+                NoteView(1)
+                Box(Modifier.padding(vertical = 30.dp)) {
+                    LongButton({ navController.navigate("allNotes") }, "All")
+                }
+            }
     }
 }
 
-class HomeViewModel constructor(private val dataStore: DataStore<Preferences>){
+class HomeViewModel constructor(private val dataStore: DataStore<Preferences>) : ViewModel() {
+    var isFirstTime: Boolean = true
 
-    private val FIRSTTIME = booleanPreferencesKey("firstTime")
-
-    val firstTimeFlow: Flow<Boolean> = dataStore.data
+    private val firstTimeFlow: Flow<Boolean> = dataStore.data
         .map { preferences ->
             preferences[FIRSTTIME] ?: true
         }
 
-    suspend fun setFirstTime(firstTime: Boolean) {
-        dataStore.edit { first ->
-            first[FIRSTTIME] = firstTime
+    init {
+        viewModelScope.launch {
+            firstTimeFlow.collect {
+                isFirstTime = it
+            }
+        }
+    }
+
+
+    fun completeOnBoarding() {
+        viewModelScope.launch {
+            dataStore.edit { store ->
+                store[FIRSTTIME] = false
+            }
         }
     }
 
