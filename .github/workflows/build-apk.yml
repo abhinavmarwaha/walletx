@@ -1,4 +1,22 @@
-- name: "Build Android project"
-  uses: vgaidarji/android-github-actions-build@v1.0.1
-  with:
-    args: "./gradlew assembleDebug"
+name: CI
+
+on: [ push, pull_request ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    env:
+      JVM_OPTS: -Xmx6G
+
+    steps:
+      - name: Git Checkout
+        uses: actions/checkout@v2
+      
+      - name: Android AssembleDebug
+        run: ./gradlew assembleDebug
+      
+      - name: Upload Debug APK
+        uses: actions/upload-artifact@v2
+        with:
+          name: app-debug.apk
+          path: app/build/outputs/apk/debug/
