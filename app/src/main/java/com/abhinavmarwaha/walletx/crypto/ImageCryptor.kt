@@ -1,12 +1,14 @@
 package com.abhinavmarwaha.walletx.crypto
 
+import android.R.attr.bitmap
 import android.content.Context
 import android.graphics.Bitmap
+import android.graphics.Bitmap.CompressFormat
 import androidx.security.crypto.EncryptedFile
 import com.abhinavmarwaha.walletx.models.globalState
+import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
-import java.nio.ByteBuffer
 import java.security.InvalidKeyException
 import java.security.MessageDigest
 import java.security.NoSuchAlgorithmException
@@ -49,11 +51,11 @@ class ImageCryptor(private val keyString: String) {
     }
 
     fun encryptBitmap(originalBitmap: Bitmap, context: Context): String {
-        val size: Int = originalBitmap.rowBytes * originalBitmap.height
-        val byteBuffer: ByteBuffer = ByteBuffer.allocate(size)
-        originalBitmap.copyPixelsToBuffer(byteBuffer)
-        val byteArray = byteBuffer.array()
-        val hash = SHAsum(byteArray)
+        val bos = ByteArrayOutputStream()
+        originalBitmap.compress(CompressFormat.PNG, 0 /*ignored for PNG*/, bos)
+        val bitmapdata: ByteArray = bos.toByteArray()
+
+        val hash = SHAsum(bitmapdata)
         try {
             val secretFile = File(context.filesDir, hash)
             val encryptedFile = EncryptedFile.Builder(
@@ -64,7 +66,7 @@ class ImageCryptor(private val keyString: String) {
                 .build()
 
             encryptedFile.openFileOutput().use { outputStream ->
-                outputStream.write(byteArray)
+                outputStream.write(bitmapdata)
                 outputStream.flush()
             }
         } catch (e: NoSuchAlgorithmException) {
