@@ -1,9 +1,6 @@
 package com.abhinavmarwaha.walletx
 
-
-import android.content.Intent
 import android.os.Bundle
-import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.layout.*
@@ -21,9 +18,7 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
-import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -33,7 +28,7 @@ import com.abhinavmarwaha.walletx.di.archModelModule
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.Money
-import com.abhinavmarwaha.walletx.models.patternState
+import com.abhinavmarwaha.walletx.models.globalState
 import com.abhinavmarwaha.walletx.ui.AddCardView
 import com.abhinavmarwaha.walletx.ui.AllCards
 import com.abhinavmarwaha.walletx.ui.AllNotes
@@ -51,7 +46,6 @@ import com.google.crypto.tink.integration.android.AndroidKeysetManager
 import io.github.osipxd.datastore.encrypted.createEncrypted
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.launch
 import org.kodein.di.*
 import org.kodein.di.android.closestDI
 import java.io.File
@@ -130,7 +124,7 @@ fun Home(navController: NavController) {
         Addlock()
     } else if (pattern!!.isEmpty()) Text("Loading")
     else {
-        patternState.pattern = pattern
+        globalState.pattern = pattern
         if (!correct) {
             Box(modifier = Modifier.padding(paddingValues = PaddingValues(top = 50.dp))){
                 PatternLock(

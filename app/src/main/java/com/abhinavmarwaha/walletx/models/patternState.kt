@@ -1,5 +1,5 @@
 package com.abhinavmarwaha.walletx.models
 
-object patternState {
+object globalState {
     var pattern: String? = null
 }

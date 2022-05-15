@@ -1,6 +1,5 @@
 package com.abhinavmarwaha.walletx.archmodel
 
-import androidx.lifecycle.LiveData
 import com.abhinavmarwaha.walletx.db.room.CGRelationDao
 import com.abhinavmarwaha.walletx.db.room.CardGroup
 import com.abhinavmarwaha.walletx.db.room.CardGroupDAO

@@ -1,6 +1,5 @@
 package com.abhinavmarwaha.walletx.archmodel
 
-import androidx.lifecycle.LiveData
 import com.abhinavmarwaha.walletx.db.room.Card
 import com.abhinavmarwaha.walletx.db.room.CardDAO
 import com.abhinavmarwaha.walletx.db.ID_UNSET

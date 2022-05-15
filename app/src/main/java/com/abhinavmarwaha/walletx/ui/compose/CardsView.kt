@@ -1,7 +1,6 @@
 package com.abhinavmarwaha.walletx.ui.compose
 
 import android.graphics.BitmapFactory
-import android.net.Uri
 import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
@@ -18,13 +17,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
-import com.abhinavmarwaha.walletx.models.patternState
+import com.abhinavmarwaha.walletx.models.globalState
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
-import java.io.FileInputStream
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
@@ -46,12 +44,9 @@ fun CardsView(group: String) {
     } else {
         HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
             Log.e("Image", cards.value[page].image)
-            val file = ImageCryptor(patternState.pattern!!).decryptBitmap(cards.value[page].image, context)
-            Log.e("Image", file?.path.toString())
-            val imageFile = FileInputStream(file!!).readBytes()
-            Log.e("Image", imageFile.toString())
+            val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
             Image(
-                BitmapFactory.decodeByteArray(imageFile, 0, imageFile.size).asImageBitmap(),
+                BitmapFactory.decodeByteArray(fileBytes, 0, fileBytes!!.size).asImageBitmap(),
                 cards.value[page].title,
                 Modifier.width(200.dp)
             )

@@ -14,7 +14,6 @@ import androidx.compose.ui.unit.Dp
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-
 data class DOT(
     val id: Int,
     val position: Offset

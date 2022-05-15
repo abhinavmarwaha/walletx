@@ -9,10 +9,10 @@ android {
 
     defaultConfig {
         applicationId "com.abhinavmarwaha.walletx"
-        minSdk 21
+        minSdk 23
         targetSdk 32
         versionCode 1
-        versionName "1.0"
+        versionName "0.9-beta"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -56,8 +56,6 @@ dependencies {
     implementation "androidx.navigation:navigation-compose:$nav_version"
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.4.1'
     implementation 'androidx.activity:activity-compose:1.4.0'
-    implementation 'androidx.appcompat:appcompat:1.4.1'
-    implementation "com.google.accompanist:accompanist-permissions:0.24.8-beta"
 
     // Lifecycle components
     implementation "androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycleVersion"
@@ -66,27 +64,24 @@ dependencies {
 
     // Room components
     implementation "androidx.room:room-ktx:$roomVersion"
+    implementation 'androidx.security:security-crypto-ktx:1.1.0-alpha03'
     kapt "androidx.room:room-compiler:$roomVersion"
     androidTestImplementation "androidx.room:room-testing:$roomVersion"
 
-    // Dependency injection
+    // State
     implementation "org.kodein.di:kodein-di-framework-android-x:$kodeinVersion"
     implementation 'androidx.compose.runtime:runtime-livedata:1.1.1'
 
     // Images
     implementation "com.github.skydoves:landscapist-glide:1.5.1"
+    implementation "com.google.accompanist:accompanist-pager:0.24.8-beta"
 
-    // Key-Value
-//    implementation "androidx.datastore:datastore-preferences:1.0.0"
+    // Json
     implementation 'com.google.code.gson:gson:2.8.9'
 
     // Encryption
     implementation 'net.zetetic:android-database-sqlcipher:4.5.1@aar'
-    implementation 'androidx.sqlite:sqlite:2.2.0'
     implementation "io.github.osipxd:encrypted-datastore:1.0.0-alpha02"
-
-    // Widgets
-    implementation "com.google.accompanist:accompanist-pager:0.24.8-beta"
 
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test.ext:junit:1.1.3'

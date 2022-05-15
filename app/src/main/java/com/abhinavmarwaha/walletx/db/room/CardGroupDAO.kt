@@ -1,6 +1,5 @@
 package com.abhinavmarwaha.walletx.db.room
 
-import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.abhinavmarwaha.walletx.db.ID_UNSET
 import kotlinx.coroutines.flow.Flow

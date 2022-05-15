@@ -3,6 +3,7 @@ package com.abhinavmarwaha.walletx.db.room
 import android.content.Context
 import androidx.room.*
 import androidx.sqlite.db.SupportSQLiteDatabase
+import com.abhinavmarwaha.walletx.models.globalState
 import net.sqlcipher.database.SQLiteDatabase
 import net.sqlcipher.database.SupportFactory
 import java.util.concurrent.Executors
@@ -57,9 +58,10 @@ abstract class AppDatabase : RoomDatabase() {
         }
 
         private fun buildDatabase(context: Context): AppDatabase {
-            val passphrase: ByteArray = SQLiteDatabase.getBytes("default".toCharArray()) // TODO Password
+            val passphrase: ByteArray = SQLiteDatabase.getBytes(globalState.pattern!!.toCharArray())
             val factory = SupportFactory(passphrase)
            return Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+               .openHelperFactory(factory)
                 .addCallback(object: Callback(){
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)

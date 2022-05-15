@@ -1,10 +1,8 @@
 package com.abhinavmarwaha.walletx.db.room
 
-import android.util.Log
 import androidx.room.TypeConverter
 import com.google.gson.JsonElement
 import com.google.gson.JsonParser
-
 
 class Converters {
     @TypeConverter

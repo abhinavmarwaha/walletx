@@ -1,16 +1,13 @@
 package com.abhinavmarwaha.walletx.OnBoarding
 
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -23,14 +20,12 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.abhinavmarwaha.walletx.HomeViewModel
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
-import java.util.*
 import kotlin.collections.ArrayList
 
 @ExperimentalComposeUiApi
@@ -76,7 +71,6 @@ fun Addlock(){
                     else if(addNo.value==1){
                         val firstString  = first.joinToString(separator = "") { it.toString() }
                         val resultString  = result.joinToString(separator = "") { it.toString() }
-                        Log.e("Pattern Add", "$firstString  $resultString")
                         if (firstString.compareTo(resultString)==0) {
                             vm.completeOnBoarding(result)
 
