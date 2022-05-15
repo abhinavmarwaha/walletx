@@ -67,9 +67,6 @@ class ImageCryptor(private val keyString: String) {
                 outputStream.write(byteArray)
                 outputStream.flush()
             }
-
-            encryptedFile.openFileInput().use { inputStream ->
-            }
         } catch (e: NoSuchAlgorithmException) {
             e.printStackTrace()
         } catch (e: NoSuchPaddingException) {

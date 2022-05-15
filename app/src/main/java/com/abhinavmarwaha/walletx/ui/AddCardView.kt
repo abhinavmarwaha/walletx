@@ -87,7 +87,7 @@ fun AddCardView(navController: NavController) {
                 coroutineScope.launch {
                     val selected = mutableListOf<CardGroupRelation>()
                     val result = withContext(Dispatchers.IO) {
-                        var id = cardDAO.insertCard(card)
+                        val id = cardDAO.insertCard(card)
                         card.id = id
                         selectedGroups.forEach {
                             selected.add(CardGroupRelation(guid = it, id = card.id))

@@ -45,8 +45,9 @@ fun CardsView(group: String) {
         HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
             Log.e("Image", cards.value[page].image)
             val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
+            val bitmap = BitmapFactory.decodeByteArray(fileBytes!!, 0, fileBytes.size)
             Image(
-                BitmapFactory.decodeByteArray(fileBytes, 0, fileBytes!!.size).asImageBitmap(),
+                bitmap.asImageBitmap(),
                 cards.value[page].title,
                 Modifier.width(200.dp)
             )
