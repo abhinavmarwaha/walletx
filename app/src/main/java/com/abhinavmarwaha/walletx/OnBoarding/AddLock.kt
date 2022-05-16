@@ -73,7 +73,6 @@ fun Addlock(){
                         val resultString  = result.joinToString(separator = "") { it.toString() }
                         if (firstString.compareTo(resultString)==0) {
                             vm.completeOnBoarding(result)
-
                         }
                         else{
                             first.clear()

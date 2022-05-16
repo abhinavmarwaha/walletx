@@ -11,7 +11,7 @@ import org.kodein.di.instance
 class NotesStore(override val di: DI) : DIAware {
     private val notesDao: NotesDao by instance()
 
-    suspend fun getNote(id: Long): KeyValueNote = notesDao.loadNote(id)
+    suspend fun getNote(id: Long): KeyValueNote? = notesDao.loadNote(id)
     suspend fun getNotes(): List<KeyValueNote> = notesDao.loadNotes()
 
     suspend fun saveNote(note: KeyValueNote): Long {

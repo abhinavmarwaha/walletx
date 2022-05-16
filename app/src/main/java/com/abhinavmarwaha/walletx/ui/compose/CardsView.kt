@@ -30,11 +30,11 @@ import org.kodein.di.instance
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun CardsView(group: String, navController: NavController) {
+fun CardsView(guid: Long, navController: NavController) {
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val cardStore: CardsStore by di.instance()
-    val cards = cardStore.getCards(group).collectAsState(listOf())
+    val cards = cardStore.getCards(guid).collectAsState(listOf())
 
     return if (cards.value.isEmpty()) {
         Box(
@@ -48,8 +48,7 @@ fun CardsView(group: String, navController: NavController) {
             Text("Add Card", color = Color.Red)
         }
     } else {
-        HorizontalPager(count = cards.value.size, itemSpacing = 0.dp) { page ->
-            Log.e("Image", cards.value[page].image)
+        HorizontalPager(count = cards.value.size, itemSpacing = 11.dp, contentPadding = PaddingValues(11.dp)) { page ->
             val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
             val bitmap = BitmapFactory.decodeByteArray(fileBytes!!, 0, fileBytes.size)
             Image(

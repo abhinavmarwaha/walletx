@@ -65,6 +65,10 @@ fun AddCardView(navController: NavController, id: Long?) {
 
     val camBitmap = remember { mutableStateOf<Bitmap?>(null) }
 
+    val newEditImage = remember {
+        mutableStateOf(false)
+    }
+
     val cameraLauncher =
         rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
             camBitmap.value = it
@@ -79,9 +83,11 @@ fun AddCardView(navController: NavController, id: Long?) {
         val vm = EditCardViewModel(cardDAO, id, card) {
             try {
                 textState.value = card.value!!.title
-                val byteArray =
-                    ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
-                camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+                if(!newEditImage.value){
+                    val byteArray =
+                        ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
+                    camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -147,6 +153,7 @@ fun AddCardView(navController: NavController, id: Long?) {
         Spacer(Modifier.size(20.dp))
         Box(Modifier.align(Alignment.CenterHorizontally)) {
             LongButton(function = {
+                newEditImage.value = true
                 cameraLauncher.launch()
             }, text = if (camBitmap.value == null) "Add Image" else "Edit Image", Modifier)
         }

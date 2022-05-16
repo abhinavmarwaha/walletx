@@ -17,7 +17,7 @@ interface NotesDao {
     suspend fun loadNotes(): List<KeyValueNote>
 
     @Query("SELECT * FROM notes_table WHERE id IS :id")
-    suspend fun loadNote(id: Long): KeyValueNote
+    suspend fun loadNote(id: Long): KeyValueNote?
 
     @Update
     suspend fun updateNote(note: KeyValueNote): Int

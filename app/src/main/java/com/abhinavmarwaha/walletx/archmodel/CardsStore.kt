@@ -23,7 +23,7 @@ class CardsStore(override val di: DI) : DIAware {
         }
     }
 
-    fun getCards(group: String): Flow<List<Card>> = cardDAO.getCards()
+    fun getCards(guid: Long): Flow<List<Card>> = cardDAO.getCardsOfGroup(guid)
 
     fun getCard(id: Long): Flow<Card?> = cardDAO.loadCard(id)
 

@@ -11,8 +11,8 @@ android {
         applicationId "com.abhinavmarwaha.walletx"
         minSdk 23
         targetSdk 32
-        versionCode 3
-        versionName "0.9-alpha"
+        versionCode 4
+        versionName "0.9.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {

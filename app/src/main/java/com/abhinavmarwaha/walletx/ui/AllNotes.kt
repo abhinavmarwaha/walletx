@@ -1,5 +1,6 @@
 package com.abhinavmarwaha.walletx.ui
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -40,7 +41,9 @@ fun AllNotes() {
     LazyColumn(Modifier.fillMaxHeight().padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally) {
         item{LongButton(function = { setShowDialog(true) }, text = "Add", Modifier.padding(30.dp))}
         items(items = vm.notes) { item ->
-            NoteView(item.id)
+            Box(Modifier.padding(10.dp)){
+                NoteView(item.id)
+            }
         }
         item {
             EditDialog(

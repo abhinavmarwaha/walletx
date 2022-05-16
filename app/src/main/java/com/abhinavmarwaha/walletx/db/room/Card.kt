@@ -1,10 +1,7 @@
 package com.abhinavmarwaha.walletx.db.room
 
 import androidx.room.*
-import com.abhinavmarwaha.walletx.db.COL_ID
-import com.abhinavmarwaha.walletx.db.COL_IMAGE
-import com.abhinavmarwaha.walletx.db.COL_TITLE
-import com.abhinavmarwaha.walletx.db.ID_UNSET
+import com.abhinavmarwaha.walletx.db.*
 
 const val CARDS_TABLE_NAME = "cards_table"
 

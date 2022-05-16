@@ -33,7 +33,10 @@ fun NoteView(id: Long) {
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val notesStore: NotesStore by di.instance()
-    val vm = NotesViewModel(notesStore, id)
+    val note = remember {
+        mutableStateOf<KeyValueNote?>(null)
+    }
+    val vm = NotesViewModel(notesStore, id, note)
 
     val addKey = remember { mutableStateOf("") }
     val addValue = remember { mutableStateOf("") }
@@ -41,6 +44,7 @@ fun NoteView(id: Long) {
 
     val coroutineScope = rememberCoroutineScope()
 
+    if(note.value!=null)
     Box(
         Modifier
             .border(BorderStroke(2.dp, Color(android.graphics.Color.GRAY)))
@@ -49,13 +53,13 @@ fun NoteView(id: Long) {
     ) {
         Column(horizontalAlignment = Alignment.Start) {
             Text(
-                vm.note.value.title,
+                note.value!!.title,
                 color = Color.White,
                 modifier = Modifier.clickable {
-                    editTitle.value = vm.note.value.title
+                    editTitle.value = note.value!!.title
                     setNoteEdit(true)
                 })
-            vm.note.value.keyValues.mapIndexed { index, key->
+            note.value!!.keyValues.mapIndexed { index, key->
                 Row(
                     Modifier
                         .padding(20.dp)
@@ -91,10 +95,8 @@ fun NoteView(id: Long) {
                     if (editing.value) {
                         coroutineScope.launch {
                             val result = withContext(Dispatchers.IO) {
-                                vm.note.value.keyValues.removeAt(editIndex.value)
-                                val result = withContext(Dispatchers.IO) {
-                                    notesStore.upsertNote(vm.note.value)
-                                }
+                                note.value!!.keyValues.removeAt(editIndex.value)
+                                notesStore.upsertNote(note.value!!)
                             }
                         }
                     }
@@ -106,13 +108,15 @@ fun NoteView(id: Long) {
                         val keyVal = Pair(addKey.value, addValue.value)
 
                         if(editing.value){
-                            vm.note.value.keyValues.removeAt(editIndex.value)
+                            note.value!!.keyValues.removeAt(editIndex.value)
+                            note.value!!.keyValues.add(editIndex.value,keyVal)
+                        }
+                        else{
+                            note.value!!.keyValues.add(keyVal)
                         }
 
-                        vm.note.value.keyValues.add(editIndex.value,keyVal)
-
                         val result = withContext(Dispatchers.IO) {
-                            notesStore.upsertNote(vm.note.value)
+                            notesStore.upsertNote(note.value!!)
                         }
                     }
                 } else {
@@ -128,14 +132,14 @@ fun NoteView(id: Long) {
                 onNegativeClick = {
                     coroutineScope.launch {
                         val result = withContext(Dispatchers.IO) {
-                            notesStore.deleteNote(vm.note.value.id)
+                            notesStore.deleteNote(note.value!!.id)
                         }
                     }
                 }) {
-                vm.note.value.title = editTitle.value
+                note.value!!.title = editTitle.value
                 coroutineScope.launch {
                     val result = withContext(Dispatchers.IO) {
-                        notesStore.upsertNote(vm.note.value)
+                        notesStore.upsertNote(note.value!!)
                     }
                 }
             }
@@ -144,13 +148,10 @@ fun NoteView(id: Long) {
 }
 
 
-class NotesViewModel(private val notesStore: NotesStore, private val id: Long) : ViewModel() {
-    val note = mutableStateOf(KeyValueNote())
-
+class NotesViewModel(private val notesStore: NotesStore, private val id: Long, private val note : MutableState<KeyValueNote?>) : ViewModel() {
     init {
         viewModelScope.launch {
             note.value = notesStore.getNote(id)
         }
     }
-
 }

@@ -54,8 +54,9 @@ fun AllCards(navController: NavController) {
                         editGroupTitle.value = item.group
                         editGroupId.value = item.guid
                         editing.value = true
+                        setShowDialog(true)
                     })
-                    CardsView(group = item.group, navController)
+                    CardsView(guid = item.guid, navController)
                 }
             }
         }

@@ -11,6 +11,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun EditDialog(
@@ -25,21 +26,22 @@ fun EditDialog(
 ) {
     if (showDialog) {
         AlertDialog(
+            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
             onDismissRequest = {
-                Log.e("Dismiss", "hello")
+                setShowDialog(false)
             },
             title = {
                 Text(title)
             },
             text = {
-                    TextField(
-                        text.value,
-                        colors = TextFieldDefaults.textFieldColors(
-                            textColor = Color.White,
-                        ),
-                        onValueChange = { text.value = it },
-                        keyboardOptions = keyboardOptions
-                    )
+                TextField(
+                    text.value,
+                    colors = TextFieldDefaults.textFieldColors(
+                        textColor = Color.White,
+                    ),
+                    onValueChange = { text.value = it },
+                    keyboardOptions = keyboardOptions
+                )
             },
             confirmButton = {
                 Button(

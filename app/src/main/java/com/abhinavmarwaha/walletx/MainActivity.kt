@@ -3,7 +3,12 @@ package com.abhinavmarwaha.walletx
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.compose.foundation.ScrollState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -19,11 +24,9 @@ import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.navigation.NavController
-import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import androidx.navigation.navArgument
 import com.abhinavmarwaha.walletx.OnBoarding.Addlock
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
@@ -31,6 +34,7 @@ import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.Money
 import com.abhinavmarwaha.walletx.models.globalState
+import com.abhinavmarwaha.walletx.ui.About
 import com.abhinavmarwaha.walletx.ui.AddCardView
 import com.abhinavmarwaha.walletx.ui.AllCards
 import com.abhinavmarwaha.walletx.ui.AllNotes
@@ -107,6 +111,7 @@ class MainActivity : ComponentActivity(), DIAware {
                         }
                         composable("allCards") { AllCards(navController) }
                         composable("allNotes") { AllNotes() }
+                        composable("about") { About() }
                     }
                 }
             }
@@ -158,9 +163,15 @@ fun Home(navController: NavController) {
             Column(
                 Modifier
                     .fillMaxHeight()
-                    .padding(20.dp)) {
+                    .padding(20.dp).verticalScroll(state = ScrollState(0))) {
+                Icon(
+                    Icons.Filled.Info,
+                    "About",
+                    modifier = Modifier.clickable { navController.navigate("about") }.size(30.dp),
+                    tint = DarkRed
+                )
                 MoneyView()
-                CardsView("main", navController)
+                CardsView(1, navController)
                 Row(
                     Modifier
                         .fillMaxWidth()

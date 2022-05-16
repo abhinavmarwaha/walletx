@@ -10,6 +10,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.window.DialogProperties
 
 @Composable
 fun EditDialog2(
@@ -28,8 +29,9 @@ fun EditDialog2(
 ) {
     if (showDialog) {
         AlertDialog(
+            properties = DialogProperties(dismissOnBackPress = true, dismissOnClickOutside = true),
             onDismissRequest = {
-
+                setShowDialog(false)
             },
             title = {
                 Text(title)
