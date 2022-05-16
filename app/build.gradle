@@ -11,8 +11,8 @@ android {
         applicationId "com.abhinavmarwaha.walletx"
         minSdk 23
         targetSdk 32
-        versionCode 1
-        versionName "0.9-beta"
+        versionCode 3
+        versionName "0.9-alpha"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
         vectorDrawables {
@@ -22,8 +22,10 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled false
+            minifyEnabled true
+            shrinkResources true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+            ndk.debugSymbolLevel = 'full'
         }
     }
     compileOptions {
