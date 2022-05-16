@@ -69,7 +69,7 @@ abstract class AppDatabase : RoomDatabase() {
                             val db = getInstance(context)
                             val note = KeyValueNote()
                             note.title = "Main"
-                            note.keyValues = listOf(Pair("Name", "James"))
+                            note.keyValues = mutableListOf(Pair("Name", "James"))
                             db.notesDao().insertNote(note)
 
                             val group = CardGroup()

@@ -1,10 +1,12 @@
 package com.abhinavmarwaha.walletx.ui
 
 import android.graphics.Bitmap
+import android.graphics.BitmapFactory
 import android.graphics.ImageDecoder
 import android.net.Uri
 import android.os.Build
 import android.provider.MediaStore
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -19,6 +21,7 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
+import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -27,6 +30,7 @@ import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
+import androidx.lifecycle.*
 import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardGroupsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
@@ -36,7 +40,9 @@ import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.LightRed
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.DI
@@ -45,9 +51,9 @@ import org.kodein.di.instance
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun AddCardView(navController: NavController) {
+fun AddCardView(navController: NavController, id: Long?) {
 
-    val textState = rememberSaveable{ mutableStateOf("") }
+    val textState = rememberSaveable { mutableStateOf("") }
     val di: DI by closestDI(LocalContext.current)
     val cardGroupsStore: CardGroupsStore by di.instance()
     val cardDAO: CardDAO by di.instance()
@@ -66,8 +72,27 @@ fun AddCardView(navController: NavController) {
     val coroutineScope = rememberCoroutineScope()
 
     val selectedGroups = remember { mutableStateListOf<Long>() }
+    val card = remember { mutableStateOf<Card?>(null) }
+    if (id != null) {
+        val vm = EditCardViewModel(cardDAO, id, card){
+            textState.value = card.value!!.title
+            val byteArray = ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
+            camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+        }
+
+    }
 
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {
+        if (id != null) SmallButton(function = {
+            val result = coroutineScope.launch {
+                withContext(Dispatchers.IO) {
+                    cardDAO.deleteCards(listOf(id))
+                }
+            }
+            result.let {
+                navController.popBackStack()
+            }
+        }, text = "Delete", color = DarkRed, modifier = Modifier)
         Spacer(Modifier.size(20.dp))
         SmallButton(function = {
             if (selectedGroups.size == 0) {
@@ -78,6 +103,9 @@ fun AddCardView(navController: NavController) {
                 ).show()
             } else {
                 val card = Card()
+                if (id != null) {
+                    card.id = id
+                }
                 card.title = textState.value
 //                val path = MediaUtils.getRealPathFromURI_API19(context,imageData.value)
                 val cryptedFile =
@@ -87,7 +115,7 @@ fun AddCardView(navController: NavController) {
                 coroutineScope.launch {
                     val selected = mutableListOf<CardGroupRelation>()
                     val result = withContext(Dispatchers.IO) {
-                        val id = cardDAO.insertCard(card)
+                        val id = cardDAO.upsertCard(card)
                         card.id = id
                         selectedGroups.forEach {
                             selected.add(CardGroupRelation(guid = it, id = card.id))
@@ -113,7 +141,7 @@ fun AddCardView(navController: NavController) {
         Box(Modifier.align(Alignment.CenterHorizontally)) {
             LongButton(function = {
                 cameraLauncher.launch()
-            }, text = if(camBitmap.value == null) "Add Image" else "Edit Image", Modifier)
+            }, text = if (camBitmap.value == null) "Add Image" else "Edit Image", Modifier)
         }
         Spacer(Modifier.height(10.dp))
         camBitmap.let {
@@ -127,10 +155,14 @@ fun AddCardView(navController: NavController) {
             }
         }
         Spacer(Modifier.size(10.dp))
-        Text("Groups",
+        Text(
+            "Groups",
             Modifier
                 .align(Alignment.Start)
-                .padding(horizontal = 10.dp), color = Color.White, fontSize = TextUnit(4f, TextUnitType.Em))
+                .padding(horizontal = 10.dp),
+            color = Color.White,
+            fontSize = TextUnit(4f, TextUnitType.Em)
+        )
         Spacer(Modifier.size(20.dp))
         LazyRow(Modifier.align(Alignment.CenterHorizontally)) {
             items(items = groups.value) { item ->
@@ -148,5 +180,20 @@ fun AddCardView(navController: NavController) {
 
             }
         }
+    }
+}
+
+class EditCardViewModel(private val cardDAO: CardDAO, private val id: Long,card: MutableState<Card?> ,setting: () -> Unit ) : ViewModel() {
+    var cardFlow = cardDAO.loadCard(id)
+
+    init {
+        viewModelScope.launch {
+            cardFlow.collect{
+                card.value = it
+                setting()
+            }
+            Log.e("init", id.toString())
+        }
+
     }
 }

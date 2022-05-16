@@ -1,5 +1,6 @@
 package com.abhinavmarwaha.walletx.ui.compose
 
+import android.util.Log
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.TextField
 import androidx.compose.material3.AlertDialog
@@ -22,7 +23,7 @@ fun EditDialog(
     if (showDialog) {
         AlertDialog(
             onDismissRequest = {
-
+                Log.e("Dismiss", "hello")
             },
             title = {
                 Text(title)

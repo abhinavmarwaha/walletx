@@ -11,6 +11,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardGroupsStore
 import com.abhinavmarwaha.walletx.db.room.CardGroup
 import com.abhinavmarwaha.walletx.db.room.CardGroupDAO
@@ -25,7 +26,7 @@ import org.kodein.di.android.closestDI
 import org.kodein.di.instance
 
 @Composable
-fun AllCards() {
+fun AllCards(navController: NavController) {
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
 
     val di: DI by closestDI(LocalContext.current)
@@ -54,7 +55,7 @@ fun AllCards() {
                         editGroupId.value = item.guid
                         editing.value = true
                     })
-                    CardsView(group = item.group)
+                    CardsView(group = item.group, navController)
                 }
             }
         }

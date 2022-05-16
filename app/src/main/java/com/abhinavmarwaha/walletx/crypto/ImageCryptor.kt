@@ -58,6 +58,7 @@ class ImageCryptor(private val keyString: String) {
         val hash = SHAsum(bitmapdata)
         try {
             val secretFile = File(context.filesDir, hash)
+            if(secretFile.exists())  secretFile.delete()
             val encryptedFile = EncryptedFile.Builder(
                 secretFile,
                 context,

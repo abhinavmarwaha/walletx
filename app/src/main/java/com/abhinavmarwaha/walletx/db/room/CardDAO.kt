@@ -13,8 +13,8 @@ interface CardDAO {
     @Query("SELECT * FROM cards_table")
     fun getCards() : Flow<List<Card>>
 
-    @Query("SELECT * FROM cards_table WHERE 'id' IS :id")
-    suspend fun loadCard(id: Long): Card?
+    @Query("SELECT * FROM cards_table WHERE id IS :id")
+    fun loadCard(id: Long): Flow<Card?>
 
     @Update
     suspend fun updateCard(card: Card): Int

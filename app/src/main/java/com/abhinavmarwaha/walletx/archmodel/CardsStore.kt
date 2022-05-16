@@ -25,7 +25,7 @@ class CardsStore(override val di: DI) : DIAware {
 
     fun getCards(group: String): Flow<List<Card>> = cardDAO.getCards()
 
-    suspend fun getCard(id: Long): Card? = cardDAO.loadCard(id)
+    fun getCard(id: Long): Flow<Card?> = cardDAO.loadCard(id)
 
     suspend fun saveCard(card: Card): Long {
         return if (card.id > ID_UNSET) {

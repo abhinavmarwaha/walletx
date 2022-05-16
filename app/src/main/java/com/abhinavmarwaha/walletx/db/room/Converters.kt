@@ -6,11 +6,11 @@ import com.google.gson.JsonParser
 
 class Converters {
     @TypeConverter
-    public fun toKeyValue(keyValuesJson: String): List<Pair<String, String>> {
+    public fun toKeyValue(keyValuesJson: String): MutableList<Pair<String, String>> {
 
         val res = mutableListOf<Pair<String, String>>()
         val jElement: JsonElement = JsonParser.parseString(keyValuesJson)
-        var jArray = jElement.asJsonArray
+        val jArray = jElement.asJsonArray
         jArray.map {
             val jObj = it.asJsonObject
             val key = jObj.keySet().first() as String
@@ -21,7 +21,7 @@ class Converters {
     }
 
     @TypeConverter
-    public fun fromKeyValue(keyValues: List<Pair<String,String>>): String {
+    public fun fromKeyValueMut(keyValues: MutableList<Pair<String,String>>): String {
         val len = keyValues.size
         var res = ""
         keyValues.forEachIndexed{ index,it ->

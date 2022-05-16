@@ -19,9 +19,11 @@ import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.asLiveData
 import androidx.navigation.NavController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.abhinavmarwaha.walletx.OnBoarding.Addlock
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
@@ -97,8 +99,13 @@ class MainActivity : ComponentActivity(), DIAware {
 
                     NavHost(navController = navController, startDestination = "home") {
                         composable("home") { Home(navController) }
-                        composable("addCard") { AddCardView(navController) }
-                        composable("allCards") { AllCards() }
+                        composable("addCard/{id}") {
+                            AddCardView(navController, it.arguments?.getString("id")?.toLong())
+                        }
+                        composable("addCard") {
+                            AddCardView(navController, null)
+                        }
+                        composable("allCards") { AllCards(navController) }
                         composable("allNotes") { AllNotes() }
                     }
                 }
@@ -153,7 +160,7 @@ fun Home(navController: NavController) {
                     .fillMaxHeight()
                     .padding(20.dp)) {
                 MoneyView()
-                CardsView("main")
+                CardsView("main", navController)
                 Row(
                     Modifier
                         .fillMaxWidth()

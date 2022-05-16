@@ -14,7 +14,7 @@ data class KeyValueNote constructor(
     @PrimaryKey(autoGenerate = true)
     @ColumnInfo(name = COL_ID) var id: Long = ID_UNSET,
     @ColumnInfo(name = COL_TITLE) var title: String = "",
-    @ColumnInfo(name = COL_KEY_VALUE) var keyValues: List<Pair<String,String>> = listOf(Pair("Name", "James"))
+    @ColumnInfo(name = COL_KEY_VALUE) var keyValues: MutableList<Pair<String,String>> = mutableListOf(Pair("Name", "James"))
 ) {
     constructor() : this(id = ID_UNSET)
 }

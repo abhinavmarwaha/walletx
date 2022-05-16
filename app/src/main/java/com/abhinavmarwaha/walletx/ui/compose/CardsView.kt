@@ -5,6 +5,7 @@ import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.Text
 import androidx.compose.runtime.Composable
@@ -12,9 +13,12 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.FilterQuality
 import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
 import com.abhinavmarwaha.walletx.models.globalState
@@ -26,7 +30,7 @@ import org.kodein.di.instance
 
 @OptIn(ExperimentalPagerApi::class)
 @Composable
-fun CardsView(group: String) {
+fun CardsView(group: String, navController: NavController) {
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val cardStore: CardsStore by di.instance()
@@ -37,7 +41,9 @@ fun CardsView(group: String) {
             Modifier
                 .border(border = BorderStroke(2.dp, Color.White))
                 .fillMaxWidth()
-                .height(70.dp), contentAlignment = Alignment.Center
+                .height(70.dp)
+                .clickable { navController.navigate("addCard") }
+            , contentAlignment = Alignment.Center
         ) {
             Text("Add Card", color = Color.Red)
         }
@@ -49,7 +55,10 @@ fun CardsView(group: String) {
             Image(
                 bitmap.asImageBitmap(),
                 cards.value[page].title,
-                Modifier.width(200.dp)
+                contentScale = ContentScale.FillWidth,
+                modifier = Modifier.fillMaxWidth().clickable {
+                    navController.navigate("addCard/${cards.value[page].id}")
+                }
             )
         }
     }

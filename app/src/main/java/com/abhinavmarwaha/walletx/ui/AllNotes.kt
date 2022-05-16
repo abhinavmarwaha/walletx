@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.NotesStore
 import com.abhinavmarwaha.walletx.db.room.KeyValueNote
 import com.abhinavmarwaha.walletx.db.room.NotesDao

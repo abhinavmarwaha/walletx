@@ -22,13 +22,14 @@ import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
+import java.util.function.Predicate
 
 @Composable
 fun NoteView(id: Long) {
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
     val (showNoteEdit, setNoteEdit) = remember { mutableStateOf(false) }
     val editing = remember { mutableStateOf(false) }
-    var oldPair = Pair("", "")
+    val editIndex = remember { mutableStateOf(-1) }
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val notesStore: NotesStore by di.instance()
@@ -54,22 +55,22 @@ fun NoteView(id: Long) {
                     editTitle.value = vm.note.value.title
                     setNoteEdit(true)
                 })
-            vm.note.value.keyValues.map {
+            vm.note.value.keyValues.mapIndexed { index, key->
                 Row(
                     Modifier
                         .padding(20.dp)
                         .fillMaxWidth()
                         .clickable {
-                            addKey.value = it.first
-                            addValue.value = it.second
+                            addKey.value = key.first
+                            addValue.value = key.second
                             editing.value = true
-                            oldPair = it
+                            editIndex.value = index
                             setShowDialog(true)
                         },
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
-                    Text(it.first)
-                    Text(it.second)
+                    Text(key.first)
+                    Text(key.second)
                 }
             }
             SmallButton(function = {
@@ -90,11 +91,7 @@ fun NoteView(id: Long) {
                     if (editing.value) {
                         coroutineScope.launch {
                             val result = withContext(Dispatchers.IO) {
-                                vm.note.value.keyValues.drop(
-                                    vm.note.value.keyValues.indexOf(
-                                        oldPair
-                                    )
-                                )
+                                vm.note.value.keyValues.removeAt(editIndex.value)
                                 val result = withContext(Dispatchers.IO) {
                                     notesStore.upsertNote(vm.note.value)
                                 }
@@ -107,17 +104,13 @@ fun NoteView(id: Long) {
                 if (addKey.value.isNotEmpty()) {
                     coroutineScope.launch {
                         val keyVal = Pair(addKey.value, addValue.value)
-                        val newKeyValues = mutableListOf<Pair<String, String>>()
 
-                        if (editing.value) vm.note.value.keyValues.drop(
-                            vm.note.value.keyValues.indexOf(
-                                oldPair
-                            )
-                        )
+                        if(editing.value){
+                            vm.note.value.keyValues.removeAt(editIndex.value)
+                        }
 
-                        newKeyValues.addAll(vm.note.value.keyValues)
-                        newKeyValues.add(keyVal)
-                        vm.note.value.keyValues = newKeyValues
+                        vm.note.value.keyValues.add(editIndex.value,keyVal)
+
                         val result = withContext(Dispatchers.IO) {
                             notesStore.upsertNote(vm.note.value)
                         }
