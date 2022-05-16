@@ -1,0 +1,12 @@
+# Features:
+
+* Completely Offline
+* Store Your Credit cards, id cards, receipts anything you will in a wallet
+* Store Important info like Medicine Names, dates etc
+* Everything is encrypted and locked with a pattern
+
+### Coming Soon:
+
+* Backup your Encrypted Database (Manually and with something like seedvault)
+* Share wallet items securely with your family and friends
+* UI for Photograph we put in our wallets
