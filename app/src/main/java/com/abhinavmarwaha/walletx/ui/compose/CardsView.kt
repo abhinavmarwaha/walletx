@@ -41,7 +41,7 @@ fun CardsView(group: String, navController: NavController) {
             Modifier
                 .border(border = BorderStroke(2.dp, Color.White))
                 .fillMaxWidth()
-                .height(70.dp)
+                .height(200.dp)
                 .clickable { navController.navigate("addCard") }
             , contentAlignment = Alignment.Center
         ) {
@@ -55,8 +55,8 @@ fun CardsView(group: String, navController: NavController) {
             Image(
                 bitmap.asImageBitmap(),
                 cards.value[page].title,
-                contentScale = ContentScale.FillWidth,
-                modifier = Modifier.fillMaxWidth().clickable {
+                contentScale= ContentScale.FillHeight,
+                modifier = Modifier.height(200.dp).clickable {
                     navController.navigate("addCard/${cards.value[page].id}")
                 }
             )

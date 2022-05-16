@@ -48,6 +48,7 @@ import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
+import java.lang.Exception
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
@@ -74,10 +75,16 @@ fun AddCardView(navController: NavController, id: Long?) {
     val selectedGroups = remember { mutableStateListOf<Long>() }
     val card = remember { mutableStateOf<Card?>(null) }
     if (id != null) {
-        val vm = EditCardViewModel(cardDAO, id, card){
-            textState.value = card.value!!.title
-            val byteArray = ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
-            camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+
+        val vm = EditCardViewModel(cardDAO, id, card) {
+            try {
+                textState.value = card.value!!.title
+                val byteArray =
+                    ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
+                camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
         }
 
     }
@@ -183,12 +190,17 @@ fun AddCardView(navController: NavController, id: Long?) {
     }
 }
 
-class EditCardViewModel(private val cardDAO: CardDAO, private val id: Long,card: MutableState<Card?> ,setting: () -> Unit ) : ViewModel() {
+class EditCardViewModel(
+    private val cardDAO: CardDAO,
+    private val id: Long,
+    card: MutableState<Card?>,
+    setting: () -> Unit
+) : ViewModel() {
     var cardFlow = cardDAO.loadCard(id)
 
     init {
         viewModelScope.launch {
-            cardFlow.collect{
+            cardFlow.collect {
                 card.value = it
                 setting()
             }
