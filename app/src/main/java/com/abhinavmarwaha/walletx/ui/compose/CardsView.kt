@@ -7,9 +7,15 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.Icon
+import androidx.compose.material.IconButton
 import androidx.compose.material.Text
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowForward
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -22,8 +28,12 @@ import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.archmodel.CardsStore
 import com.abhinavmarwaha.walletx.crypto.ImageCryptor
 import com.abhinavmarwaha.walletx.models.globalState
+import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.PagerState
+import com.google.accompanist.pager.rememberPagerState
+import kotlinx.coroutines.launch
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
@@ -48,18 +58,68 @@ fun CardsView(guid: Long, navController: NavController) {
             Text("Add Card", color = Color.Red)
         }
     } else {
-        HorizontalPager(count = cards.value.size, itemSpacing = 11.dp, contentPadding = PaddingValues(11.dp)) { page ->
-            val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
-            val bitmap = BitmapFactory.decodeByteArray(fileBytes!!, 0, fileBytes.size)
-            Image(
-                bitmap.asImageBitmap(),
-                cards.value[page].title,
-                contentScale= ContentScale.FillHeight,
-                modifier = Modifier.height(200.dp).clickable {
-                    navController.navigate("addCard/${cards.value[page].id}")
-                }
+        Column(Modifier.fillMaxSize()) {
+            val pagerState = rememberPagerState()
+            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth(),count = cards.value.size, itemSpacing = 11.dp, contentPadding = PaddingValues(11.dp)) { page ->
+                val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
+                val bitmap = BitmapFactory.decodeByteArray(fileBytes!!, 0, fileBytes.size)
+                Image(
+                    bitmap.asImageBitmap(),
+                    cards.value[page].title,
+                    contentScale= ContentScale.FillHeight,
+                    modifier = Modifier
+                        .height(200.dp)
+                        .clickable {
+                            navController.navigate("addCard/${cards.value[page].id}")
+                        }
+                )
+            }
+//            HorizontalPagerIndicator(
+//                pagerState = pagerState,
+//                modifier = Modifier
+//                    .align(Alignment.CenterHorizontally)
+//                    .padding(16.dp),
+//            )
+
+            ActionsRow(
+                pagerState = pagerState,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
         }
     }
 
+}
+
+@OptIn(ExperimentalPagerApi::class)
+@Composable
+internal fun ActionsRow(
+    pagerState: PagerState,
+    modifier: Modifier = Modifier,
+    infiniteLoop: Boolean = false
+) {
+    Row(modifier) {
+        val scope = rememberCoroutineScope()
+
+        IconButton(
+            enabled = infiniteLoop || pagerState.currentPage > 0,
+            onClick = {
+                scope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                }
+            }
+        ) {
+            Icon(Icons.Default.ArrowBack, contentDescription = null, tint = DarkRed )
+        }
+
+        IconButton(
+            enabled = infiniteLoop || pagerState.currentPage < pagerState.pageCount - 1,
+            onClick = {
+                scope.launch {
+                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                }
+            }
+        ) {
+            Icon(Icons.Default.ArrowForward, contentDescription = null, tint = DarkRed)
+        }
+    }
 }
