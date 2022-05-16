@@ -22,10 +22,10 @@ Secure and  Private wallet for Android
 <br>
 
 <p align='center'>
-    <img src="https://img.shields.io/github/license/abhinavmarwaha/wallet?color=red"/>
-    <img src="https://img.shields.io/github/v/release/abhinavmarwaha/papyrus?include_prereleases&color=red"/>
-    <img src="https://img.shields.io/github/commits-since/abhinavmarwaha/papyrus/latest?color=red"/> 
-    <img src="https://img.shields.io/discord/894461670989103144?color=orange&label=Discord&logo=Discord&logoColor=red&style=flat-square"/>
+    <img src="https://img.shields.io/github/license/abhinavmarwaha/walletx?color=red"/>
+    <img src="https://img.shields.io/github/v/release/abhinavmarwaha/walletx?include_prereleases&color=red"/>
+    <img src="https://img.shields.io/github/commits-since/abhinavmarwaha/walletx/latest?color=red"/> 
+    <img src="https://img.shields.io/discord/894461670989103144?color=red&label=Discord&logo=Discord&logoColor=red&style=flat-square"/>
 </p>
 
 <p align='center'> 
