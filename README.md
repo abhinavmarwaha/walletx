@@ -4,7 +4,7 @@
 </p>
 
 <p align='center'>
-Secure and  Private wallet for Android
+Secure and Private wallet for Android
 </p>
 
 <p align='center'>
@@ -41,16 +41,19 @@ Secure and  Private wallet for Android
 * Store Your Credit cards, id cards, receipts anything you will in a wallet
 * Store Important info like Medicine Names, dates etc
 * Everything is encrypted and locked with a pattern
+* Backup your Encrypted Database with something like seedvault
 
 ### Coming Soon:
 
-* Backup your Encrypted Database (Manually and with something like seedvault)
+* Backup your Encrypted Database Manually
 * Share wallet items securely with your family and friends
 * UI for Photograph we put in our wallets
+* Crop image and detect card
+* Material You
 
 # Have Suggestions ?
 
-You can add an issue [here](https://github.com/abhinavmarwaha/walletx/issues) or fill up a form [here]().
+You can add an issue [here](https://github.com/abhinavmarwaha/walletx/issues) or fill up a form [here](https://forms.office.com/Pages/ResponsePage.aspx?id=DQSIkWdsW0yxEjajBLZtrQAAAAAAAAAAAANAASks135UOVZUSlZHVEVOSFRYRlJFVkMyQjI1QVVJWS4u).
 
 # ToDo
 
@@ -72,3 +75,9 @@ Btc -> 35Tzo8hTsggF2YENmBUc4ZiMjCKNYjgmHH
 
 
 # Credits
+
+* [sqlcipher](https://www.zetetic.net/sqlcipher/sqlcipher-for-android/)
+* [encrypted-datastore](https://github.com/osipxd/encrypted-datastore)
+* [W-PatternLock](https://github.com/amirhwsyn/W-PatternLock)
+* <a href="https://www.flaticon.com/free-icons/wallet" title="wallet icon">Wallet icon created by Smashicons - Flaticon</a>
+* Learnt a lot by reading the codebase of [Feeder](https://gitlab.com/spacecowboy/Feeder/)
