@@ -36,18 +36,20 @@ class ImageCryptor(private val keyString: String) {
 //        timer.start()
 //    }
 
-    @Throws(NoSuchAlgorithmException::class)
-    fun SHAsum(convertme: ByteArray?): String {
-        val md: MessageDigest = MessageDigest.getInstance("SHA-1")
-        return byteArray2Hex(md.digest(convertme))
-    }
-
-    private fun byteArray2Hex(hash: ByteArray): String {
-        val formatter = Formatter()
-        for (b in hash) {
-            formatter.format("%02x", b)
+    companion object{
+        @Throws(NoSuchAlgorithmException::class)
+        fun SHAsum(convertme: ByteArray?): String {
+            val md: MessageDigest = MessageDigest.getInstance("SHA-1")
+            return byteArray2Hex(md.digest(convertme))
         }
-        return formatter.toString()
+
+        private fun byteArray2Hex(hash: ByteArray): String {
+            val formatter = Formatter()
+            for (b in hash) {
+                formatter.format("%02x", b)
+            }
+            return formatter.toString()
+        }
     }
 
     fun encryptBitmap(originalBitmap: Bitmap, context: Context): String {

@@ -42,11 +42,12 @@ import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
+import java.io.File
 import java.io.InputStream
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null) {
+fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null, hash: String?) {
 
     val textState = rememberSaveable { mutableStateOf("") }
     val di: DI by closestDI(LocalContext.current)
@@ -73,23 +74,32 @@ fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null) {
     val selectedGroups = remember { mutableStateListOf<Long>() }
     val card = remember { mutableStateOf<Card?>(null) }
     if (id != null) {
-
         val vm = EditCardViewModel(cardDAO, id, card) {
             try {
                 textState.value = card.value!!.title
-                if(!newEditImage.value){
+                if (!newEditImage.value) {
                     val byteArray =
-                        ImageCryptor(globalState.pattern!!).decryptBitmap(card.value!!.image, context)
+                        ImageCryptor(globalState.pattern!!).decryptBitmap(
+                            card.value!!.image,
+                            context
+                        )
                     camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray!!.size)
                 }
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
-
+    } else if (hash != null) {
+        LaunchedEffect(Unit){
+            if (!newEditImage.value) {
+                val file = File(context.cacheDir, hash)
+                val byteArray = file.readBytes()
+                camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
+            }
+        }
     }
 
-    if(uri!=null){
+    if (uri != null) {
         val stream: InputStream = context.contentResolver.openInputStream(uri)!!
         camBitmap.value = BitmapFactory.decodeStream(stream);
     }

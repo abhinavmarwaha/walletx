@@ -6,6 +6,7 @@ import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
 import android.os.Parcelable
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ScrollState
@@ -34,6 +35,7 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.abhinavmarwaha.walletx.crypto.ImageCryptor.Companion.SHAsum
 import com.abhinavmarwaha.walletx.onBoarding.AddLock
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
@@ -61,7 +63,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import org.kodein.di.*
 import org.kodein.di.android.closestDI
+import java.io.ByteArrayOutputStream
 import java.io.File
+import java.io.InputStream
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -122,8 +126,7 @@ class MainActivity : ComponentActivity(), DIAware {
                             (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
                                 sharedImage = it
                             }
-                        }
-                        else if (intent.type?.compareTo("application/pdf") == 0) {
+                        } else if (intent.type?.compareTo("application/pdf") == 0) {
                             (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
                                 sharedPDF = it
                             }
@@ -135,16 +138,19 @@ class MainActivity : ComponentActivity(), DIAware {
                         composable("addCard/{id}") { navBackStackEntry ->
                             val id = navBackStackEntry.arguments?.getString("id")
                             if (id != null && id.all { Character.isDigit(it) })
-                                AddCardView(navController, id.toLong())
+                                AddCardView(navController, id.toLong(), null, null)
                             if (id != null) {
                                 val decodedUri =
                                     URLDecoder.decode(id, StandardCharsets.UTF_8.toString())
-                                AddCardView(navController, null, Uri.parse(decodedUri))
+                                if (id.compareTo(decodedUri) != 0)
+                                    AddCardView(navController, null, Uri.parse(decodedUri), null)
+                                else
+                                    AddCardView(navController, null, null, id)
                             } else
-                                AddCardView(navController, id?.toLong())
+                                AddCardView(navController, id?.toLong(), null, null)
                         }
                         composable("addCard") {
-                            AddCardView(navController, null)
+                            AddCardView(navController, null, null, null)
                         }
                         composable("allCards") { AllCards(navController) }
                         composable("allNotes") { AllNotes() }
@@ -269,6 +275,8 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                             Button(
                                 onClick = {
                                     setShowDialog(false)
+                                    readExternal.launchPermissionRequest()
+                                    Log.e("PERMISSION", "ASKED")
                                 },
                             ) {
                                 Text("Confirm")
@@ -277,7 +285,6 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                         dismissButton = {
                             Button(
                                 onClick = {
-                                    readExternal.launchPermissionRequest()
                                     setShowDialog(false)
                                 },
                             ) {
@@ -296,8 +303,7 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                     setShowDialog(true)
                     firstRun.value = false
                 }
-            }
-            else if(sharedPDF!=null){
+            } else if (sharedPDF != null) {
                 val descriptor = context.contentResolver.openFileDescriptor(sharedPDF, "r")
                 val renderer = PdfRenderer(descriptor!!)
                 val page: PdfRenderer.Page = renderer.openPage(0) // TODO pdf
@@ -309,6 +315,13 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                     Bitmap.Config.ARGB_8888
                 )
                 page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                val bos = ByteArrayOutputStream()
+                bitmap.compress(Bitmap.CompressFormat.PNG, 0, bos)
+                val bitmapdata: ByteArray = bos.toByteArray()
+                val hash = SHAsum(bitmapdata)
+                val file = File(context.cacheDir, hash)
+                file.writeBytes(bitmapdata)
+                navController.navigate("addCard/$hash")
                 page.close()
                 renderer.close()
             }
