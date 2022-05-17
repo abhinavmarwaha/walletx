@@ -114,18 +114,24 @@ class MainActivity : ComponentActivity(), DIAware {
                     val navController = rememberNavController()
 
                     var sharedImage: Uri? = null
+                    var sharedPDF: Uri? = null
 
-                    // images from share
+                    // image/pdf from share
                     if (intent?.action == Intent.ACTION_SEND) {
                         if (intent.type?.startsWith("image/") == true) {
                             (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
                                 sharedImage = it
                             }
                         }
+                        else if (intent.type?.compareTo("application/pdf") == 0) {
+                            (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+                                sharedPDF = it
+                            }
+                        }
                     }
 
                     NavHost(navController = navController, startDestination = "home") {
-                        composable("home") { Home(navController, sharedImage) }
+                        composable("home") { Home(navController, sharedImage, sharedPDF) }
                         composable("addCard/{id}") { navBackStackEntry ->
                             val id = navBackStackEntry.arguments?.getString("id")
                             if (id != null && id.all { Character.isDigit(it) })
@@ -155,7 +161,7 @@ private val PATTERN = stringPreferencesKey("pattern")
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
 @Composable
-fun Home(navController: NavController, sharedImage: Uri?) {
+fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
@@ -285,25 +291,26 @@ fun Home(navController: NavController, sharedImage: Uri?) {
                 if (readExternal.status.shouldShowRationale) {
                     val encodedUrl =
                         URLEncoder.encode(sharedImage.toString(), StandardCharsets.UTF_8.toString())
-                    val descriptor = context.contentResolver.openFileDescriptor(sharedImage, "r")
-                    val renderer = PdfRenderer(descriptor!!)
-                    val page: PdfRenderer.Page = renderer.openPage(0)
-                    val pageWidth = page.width
-                    val pageHeight = page.height
-                    val bitmap = Bitmap.createBitmap(
-                        pageWidth,
-                        pageHeight,
-                        Bitmap.Config.ARGB_8888
-                    )
-                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
-                    page.close()
-                    renderer.close()
-
                     navController.navigate("addCard/$encodedUrl")
                 } else if (firstRun.value) {
                     setShowDialog(true)
                     firstRun.value = false
                 }
+            }
+            else if(sharedPDF!=null){
+                val descriptor = context.contentResolver.openFileDescriptor(sharedPDF, "r")
+                val renderer = PdfRenderer(descriptor!!)
+                val page: PdfRenderer.Page = renderer.openPage(0) // TODO pdf
+                val pageWidth = page.width
+                val pageHeight = page.height
+                val bitmap = Bitmap.createBitmap(
+                    pageWidth,
+                    pageHeight,
+                    Bitmap.Config.ARGB_8888
+                )
+                page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                page.close()
+                renderer.close()
             }
             return res
         }

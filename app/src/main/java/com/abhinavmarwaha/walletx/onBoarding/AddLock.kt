@@ -114,7 +114,7 @@ class AddLockVM(
                 val newPassword = pattern.joinToString(separator = "") { it.toString() }
                 store[PATTERN] = newPassword
                 if(editing) {
-                    AppDatabase.getInstance(context).query("PRAGMA rekey = '$newPassword';", emptyArray()) // TODO test
+                    AppDatabase.getInstance(context).query("PRAGMA rekey = '$newPassword';", emptyArray())
                     navController.popBackStack()
                 }
                 Toast.makeText(context, "Pattern Saved", Toast.LENGTH_SHORT).show()
