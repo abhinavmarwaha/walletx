@@ -274,8 +274,8 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                         confirmButton = {
                             Button(
                                 onClick = {
-                                    setShowDialog(false)
-                                    readExternal.launchPermissionRequest()
+//                                    setShowDialog(false)
+                                    readExternal.launchPermissionRequest() // TODO Permission
                                     Log.e("PERMISSION", "ASKED")
                                 },
                             ) {
@@ -306,7 +306,7 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
             } else if (sharedPDF != null) {
                 val descriptor = context.contentResolver.openFileDescriptor(sharedPDF, "r")
                 val renderer = PdfRenderer(descriptor!!)
-                val page: PdfRenderer.Page = renderer.openPage(0) // TODO pdf
+                val page: PdfRenderer.Page = renderer.openPage(0)
                 val pageWidth = page.width
                 val pageHeight = page.height
                 val bitmap = Bitmap.createBitmap(

@@ -91,6 +91,7 @@ fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null, hash:
         }
     } else if (hash != null) {
         LaunchedEffect(Unit){
+            // TODO UI getting Refreshed continuously
             if (!newEditImage.value) {
                 val file = File(context.cacheDir, hash)
                 val byteArray = file.readBytes()
@@ -207,7 +208,7 @@ fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null, hash:
 }
 
 class EditCardViewModel(
-    private val cardDAO: CardDAO,
+    cardDAO: CardDAO,
     private val id: Long,
     card: MutableState<Card?>,
     setting: () -> Unit
