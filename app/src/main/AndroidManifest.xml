@@ -1,7 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    package="com.abhinavmarwaha.walletx">
+    package="com.abhinavmarwaha.walletx"
+    android:allowBackup="true"
+    android:fullBackupContent="true"
+    android:dataExtractionRules="@xml/data_extraction_rules">
 
     <application
         android:allowBackup="true"
@@ -20,9 +23,15 @@
             android:theme="@style/Theme.WalletX">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <!--Get images from other apps in share menu-->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:mimeType="image/*" />
+            </intent-filter>
+
         </activity>
     </application>
 

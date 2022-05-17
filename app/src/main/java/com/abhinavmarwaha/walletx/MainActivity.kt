@@ -1,6 +1,12 @@
 package com.abhinavmarwaha.walletx
 
+import android.content.Intent
+import android.graphics.Bitmap
+import android.graphics.pdf.PdfRenderer
+import android.net.Uri
 import android.os.Bundle
+import android.os.ParcelFileDescriptor
+import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.compose.foundation.ScrollState
@@ -19,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
@@ -45,6 +52,9 @@ import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.WalletXTheme
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.shouldShowRationale
 import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.aead.AeadConfig
@@ -55,6 +65,11 @@ import kotlinx.coroutines.flow.map
 import org.kodein.di.*
 import org.kodein.di.android.closestDI
 import java.io.File
+import java.io.FileDescriptor
+import java.net.URLDecoder
+import java.net.URLEncoder
+import java.nio.charset.StandardCharsets
+
 
 class MainActivity : ComponentActivity(), DIAware {
 
@@ -92,6 +107,7 @@ class MainActivity : ComponentActivity(), DIAware {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
         setContent {
             WalletXTheme {
                 Surface(
@@ -101,10 +117,29 @@ class MainActivity : ComponentActivity(), DIAware {
                 ) {
                     val navController = rememberNavController()
 
+                    var sharedImage: Uri? = null
+
+                    // images from share
+                    if (intent?.action == Intent.ACTION_SEND) {
+                        if (intent.type?.startsWith("image/") == true) {
+                            (intent.getParcelableExtra<Parcelable>(Intent.EXTRA_STREAM) as? Uri)?.let {
+                                sharedImage = it
+                            }
+                        }
+                    }
+
                     NavHost(navController = navController, startDestination = "home") {
-                        composable("home") { Home(navController) }
-                        composable("addCard/{id}") {
-                            AddCardView(navController, it.arguments?.getString("id")?.toLong())
+                        composable("home") { Home(navController, sharedImage) }
+                        composable("addCard/{id}") { navBackStackEntry ->
+                            val id = navBackStackEntry.arguments?.getString("id")
+                            if (id != null && id.all { Character.isDigit(it) })
+                                AddCardView(navController, id.toLong())
+                            if (id != null) {
+                                val decodedUri =
+                                    URLDecoder.decode(id, StandardCharsets.UTF_8.toString())
+                                AddCardView(navController, null, Uri.parse(decodedUri))
+                            } else
+                                AddCardView(navController, id?.toLong())
                         }
                         composable("addCard") {
                             AddCardView(navController, null)
@@ -121,9 +156,10 @@ class MainActivity : ComponentActivity(), DIAware {
 
 private val PATTERN = stringPreferencesKey("pattern")
 
-@OptIn(ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalComposeUiApi::class, ExperimentalPermissionsApi::class)
 @Composable
-fun Home(navController: NavController) {
+fun Home(navController: NavController, sharedImage: Uri?) {
+    val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
     val vm = HomeViewModel(dataStore)
@@ -132,13 +168,19 @@ fun Home(navController: NavController) {
     }
     val pattern: String? by vm.patternFlow.asLiveData().observeAsState()
 
+    val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
+    val readExternal = rememberPermissionState(
+        android.Manifest.permission.READ_EXTERNAL_STORAGE
+    )
+    val firstRun = remember { mutableStateOf(true) }
+
     if (pattern == null) {
         Addlock()
     } else if (pattern!!.isEmpty()) Text("Loading")
     else {
         globalState.pattern = pattern
         if (!correct) {
-            Box(modifier = Modifier.padding(paddingValues = PaddingValues(top = 50.dp))){
+            Box(modifier = Modifier.padding(paddingValues = PaddingValues(top = 50.dp))) {
                 PatternLock(
                     size = 400.dp,
                     key = ArrayList(pattern!!.toCharArray().map { it.digitToInt() }),
@@ -159,15 +201,19 @@ fun Home(navController: NavController) {
                     }
                 )
             }
-        } else
-            Column(
+        } else {
+            val res = Column(
                 Modifier
                     .fillMaxHeight()
-                    .padding(20.dp).verticalScroll(state = ScrollState(0))) {
+                    .padding(20.dp)
+                    .verticalScroll(state = ScrollState(0))
+            ) {
                 Icon(
                     Icons.Filled.Info,
                     "About",
-                    modifier = Modifier.clickable { navController.navigate("about") }.size(30.dp),
+                    modifier = Modifier
+                        .clickable { navController.navigate("about") }
+                        .size(30.dp),
                     tint = DarkRed
                 )
                 MoneyView()
@@ -191,8 +237,69 @@ fun Home(navController: NavController) {
                         .padding(vertical = 30.dp)
                         .align(Alignment.CenterHorizontally)
                 )
+                if (showDialog)
+                    AlertDialog(
+                        properties = DialogProperties(
+                            dismissOnBackPress = true,
+                            dismissOnClickOutside = true
+                        ),
+                        onDismissRequest = {
+                            setShowDialog(false)
+                        },
+                        title = {
+                            Text("Grant")
+                        },
+                        text = {
+                            Text("You need to grant Media permission for that")
+                        },
+                        confirmButton = {
+                            Button(
+                                onClick = {
+                                    setShowDialog(false)
+                                },
+                            ) {
+                                Text("Confirm")
+                            }
+                        },
+                        dismissButton = {
+                            Button(
+                                onClick = {
+                                    readExternal.launchPermissionRequest()
+                                    setShowDialog(false)
+                                },
+                            ) {
+                                Text("Nah")
+                            }
+                        },
+                    )
 
             }
+            if (sharedImage != null) {
+                if (readExternal.status.shouldShowRationale) {
+                    val encodedUrl =
+                        URLEncoder.encode(sharedImage.toString(), StandardCharsets.UTF_8.toString())
+                    val descriptor = context.contentResolver.openFileDescriptor(sharedImage)
+                    val renderer = PdfRenderer(descriptor)
+                    val page: PdfRenderer.Page = renderer.openPage(0)
+                    val pageWidth = page.width
+                    val pageHeight = page.height
+                    val bitmap = Bitmap.createBitmap(
+                        pageWidth,
+                        pageHeight,
+                        Bitmap.Config.ARGB_8888
+                    )
+                    page.render(bitmap, null, null, PdfRenderer.Page.RENDER_MODE_FOR_DISPLAY)
+                    page.close()
+                    renderer.close()
+
+                    navController.navigate("addCard/$encodedUrl")
+                } else if (firstRun.value) {
+                    setShowDialog(true)
+                    firstRun.value = false
+                }
+            }
+            return res
+        }
     }
 }
 

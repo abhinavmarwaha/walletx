@@ -2,9 +2,7 @@ package com.abhinavmarwaha.walletx.ui
 
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.graphics.ImageDecoder
 import android.net.Uri
-import android.os.Build
 import android.provider.MediaStore
 import android.util.Log
 import android.widget.Toast
@@ -21,13 +19,11 @@ import androidx.compose.material.Text
 import androidx.compose.material.TextField
 import androidx.compose.material.TextFieldDefaults
 import androidx.compose.runtime.*
-import androidx.compose.runtime.livedata.observeAsState
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.asImageBitmap
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.*
 import androidx.lifecycle.*
@@ -40,19 +36,17 @@ import com.abhinavmarwaha.walletx.ui.theme.DarkRed
 import com.abhinavmarwaha.walletx.ui.theme.LightRed
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.kodein.di.DI
 import org.kodein.di.android.closestDI
 import org.kodein.di.instance
-import java.lang.Exception
+import java.io.InputStream
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun AddCardView(navController: NavController, id: Long?) {
+fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null) {
 
     val textState = rememberSaveable { mutableStateOf("") }
     val di: DI by closestDI(LocalContext.current)
@@ -93,6 +87,11 @@ fun AddCardView(navController: NavController, id: Long?) {
             }
         }
 
+    }
+
+    if(uri!=null){
+        val stream: InputStream = context.contentResolver.openInputStream(uri)!!
+        camBitmap.value = BitmapFactory.decodeStream(stream);
     }
 
     Column(Modifier.fillMaxSize(), horizontalAlignment = Alignment.CenterHorizontally) {

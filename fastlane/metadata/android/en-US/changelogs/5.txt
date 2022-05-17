@@ -1,0 +1,4 @@
+Change Pattern in settings
+Share images and single page pdf's from other apps
+Seedvault support
+Carousal actually looks like a carousal now
