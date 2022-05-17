@@ -22,6 +22,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
+import com.abhinavmarwaha.walletx.db.room.AppDatabase
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import kotlinx.coroutines.launch
@@ -110,8 +111,12 @@ class AddLockVM(
     fun completeOnBoarding(pattern: ArrayList<Int>) {
         viewModelScope.launch {
             dataStore.edit { store ->
-                store[PATTERN] = pattern.joinToString(separator = "") { it.toString() }
-                if(editing) navController.popBackStack()
+                val newPassword = pattern.joinToString(separator = "") { it.toString() }
+                store[PATTERN] = newPassword
+                if(editing) {
+                    AppDatabase.getInstance(context).query("PRAGMA rekey = '$newPassword';", emptyArray()) // TODO test
+                    navController.popBackStack()
+                }
                 Toast.makeText(context, "Pattern Saved", Toast.LENGTH_SHORT).show()
             }
         }
