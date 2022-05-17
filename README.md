@@ -9,13 +9,13 @@ Secure and Private wallet for Android
 
 <p align='center'>
     <a href='https://play.google.com/store/apps/details?id=com.abhinavmarwaha.walletx'>
-    <img  height="56"  alt='Get it on Google Play' style="padding-right:8px;" src='https://raw.githubusercontent.com/abhinavmarwaha/curator/master/assets/get-it-on-play-store.png' />
+    <img  height="56"  alt='Get it on Google Play' style="padding-right:8px;" src='./assets/external/play-store.png' />
     </a>
     <a href='https://f-droid.org/en/packages/com.abhinavmarwaha.walletx/'>
-        <img height="70" src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png">
+        <img height="56" src="./assets/external/fdroid.png">
     </a>
     <a href='https://github.com/abhinavmarwaha/walletx/releases/latest'>
-        <img src="https://i.ibb.co/q0mdc4Z/get-it-on-github.png" alt="Get it on Github" height="70">
+        <img src="./assets/external/github.png" alt="Get it on Github" height="56">
     </a>
 </p>
 
