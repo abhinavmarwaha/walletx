@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.pdf.PdfRenderer
 import android.net.Uri
 import android.os.Bundle
-import android.os.ParcelFileDescriptor
 import android.os.Parcelable
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -15,6 +14,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.livedata.observeAsState
@@ -34,17 +34,14 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.abhinavmarwaha.walletx.OnBoarding.Addlock
+import com.abhinavmarwaha.walletx.onBoarding.AddLock
 import com.abhinavmarwaha.walletx.db.room.*
 import com.abhinavmarwaha.walletx.di.archModelModule
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.Money
 import com.abhinavmarwaha.walletx.models.globalState
-import com.abhinavmarwaha.walletx.ui.About
-import com.abhinavmarwaha.walletx.ui.AddCardView
-import com.abhinavmarwaha.walletx.ui.AllCards
-import com.abhinavmarwaha.walletx.ui.AllNotes
+import com.abhinavmarwaha.walletx.ui.*
 import com.abhinavmarwaha.walletx.ui.compose.CardsView
 import com.abhinavmarwaha.walletx.ui.compose.MoneyView
 import com.abhinavmarwaha.walletx.ui.compose.NoteView
@@ -65,7 +62,6 @@ import kotlinx.coroutines.flow.map
 import org.kodein.di.*
 import org.kodein.di.android.closestDI
 import java.io.File
-import java.io.FileDescriptor
 import java.net.URLDecoder
 import java.net.URLEncoder
 import java.nio.charset.StandardCharsets
@@ -147,6 +143,7 @@ class MainActivity : ComponentActivity(), DIAware {
                         composable("allCards") { AllCards(navController) }
                         composable("allNotes") { AllNotes() }
                         composable("about") { About() }
+                        composable("settings") { Settings() }
                     }
                 }
             }
@@ -175,7 +172,7 @@ fun Home(navController: NavController, sharedImage: Uri?) {
     val firstRun = remember { mutableStateOf(true) }
 
     if (pattern == null) {
-        Addlock()
+        AddLock()
     } else if (pattern!!.isEmpty()) Text("Loading")
     else {
         globalState.pattern = pattern
@@ -208,14 +205,24 @@ fun Home(navController: NavController, sharedImage: Uri?) {
                     .padding(20.dp)
                     .verticalScroll(state = ScrollState(0))
             ) {
-                Icon(
-                    Icons.Filled.Info,
-                    "About",
-                    modifier = Modifier
-                        .clickable { navController.navigate("about") }
-                        .size(30.dp),
-                    tint = DarkRed
-                )
+                Row(horizontalArrangement = Arrangement.SpaceEvenly){
+                    Icon(
+                        Icons.Filled.Info,
+                        "About",
+                        modifier = Modifier
+                            .clickable { navController.navigate("about") }
+                            .size(30.dp),
+                        tint = DarkRed
+                    )
+                    Icon(
+                        Icons.Filled.Settings,
+                        "Settings",
+                        modifier = Modifier
+                            .clickable { navController.navigate("settings") }
+                            .size(30.dp),
+                        tint = DarkRed
+                    )
+                }
                 MoneyView()
                 CardsView(1, navController)
                 Row(
@@ -278,8 +285,8 @@ fun Home(navController: NavController, sharedImage: Uri?) {
                 if (readExternal.status.shouldShowRationale) {
                     val encodedUrl =
                         URLEncoder.encode(sharedImage.toString(), StandardCharsets.UTF_8.toString())
-                    val descriptor = context.contentResolver.openFileDescriptor(sharedImage)
-                    val renderer = PdfRenderer(descriptor)
+                    val descriptor = context.contentResolver.openFileDescriptor(sharedImage, "r")
+                    val renderer = PdfRenderer(descriptor!!)
                     val page: PdfRenderer.Page = renderer.openPage(0)
                     val pageWidth = page.width
                     val pageHeight = page.height

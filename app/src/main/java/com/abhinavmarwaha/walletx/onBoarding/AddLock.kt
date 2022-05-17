@@ -1,4 +1,4 @@
-package com.abhinavmarwaha.walletx.OnBoarding
+package com.abhinavmarwaha.walletx.onBoarding
 
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
@@ -30,7 +30,7 @@ import kotlin.collections.ArrayList
 
 @ExperimentalComposeUiApi
 @Composable
-fun Addlock(){
+fun AddLock(){
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
