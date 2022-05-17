@@ -1,5 +1,6 @@
 package com.abhinavmarwaha.walletx.onBoarding
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import kotlinx.coroutines.launch
@@ -30,11 +32,11 @@ import kotlin.collections.ArrayList
 
 @ExperimentalComposeUiApi
 @Composable
-fun AddLock(){
+fun AddLock(navController: NavController, editing: Boolean) {
     val context = LocalContext.current
     val di: DI by closestDI(LocalContext.current)
     val dataStore: DataStore<Preferences> by di.instance()
-    val vm = AddLockVM(dataStore)
+    val vm = AddLockVM(context,dataStore, navController, editing)
     var first = remember {
         mutableListOf<Int>()
     }
@@ -46,7 +48,14 @@ fun AddLock(){
     }
 
     Column() {
-        Text(title.value, color = Color.White,modifier=Modifier.fillMaxWidth().padding(vertical = 50.dp), textAlign = TextAlign.Center)
+        Text(
+            title.value,
+            color = Color.White,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 50.dp),
+            textAlign = TextAlign.Center
+        )
         PatternLock(
             size = 400.dp,
             key = arrayListOf(0, 1, 2),
@@ -62,23 +71,22 @@ fun AddLock(){
                 }
 
                 override fun onEnd(result: ArrayList<Int>, isCorrect: Boolean) {
-                    if(addNo.value==0){
+                    if (addNo.value == 0) {
                         first.addAll(result)
                         addNo.value++
                         title.value = "Pattern Lock Confirm"
                         Toast.makeText(context, "Pattern Again", Toast.LENGTH_SHORT).show()
-                    }
-                    else if(addNo.value==1){
-                        val firstString  = first.joinToString(separator = "") { it.toString() }
-                        val resultString  = result.joinToString(separator = "") { it.toString() }
-                        if (firstString.compareTo(resultString)==0) {
+                    } else if (addNo.value == 1) {
+                        val firstString = first.joinToString(separator = "") { it.toString() }
+                        val resultString = result.joinToString(separator = "") { it.toString() }
+                        if (firstString.compareTo(resultString) == 0) {
                             vm.completeOnBoarding(result)
-                        }
-                        else{
+                        } else {
                             first.clear()
                             addNo.value = 0
                             title.value = "Add Pattern Lock"
-                            Toast.makeText(context, "Wrong, add new pattern", Toast.LENGTH_SHORT).show()
+                            Toast.makeText(context, "Wrong, add new pattern", Toast.LENGTH_SHORT)
+                                .show()
                         }
 
                     }
@@ -90,13 +98,21 @@ fun AddLock(){
 
 
 }
+
 private val PATTERN = stringPreferencesKey("pattern")
 
-class AddLockVM(private val dataStore: DataStore<Preferences>) : ViewModel(){
+class AddLockVM(
+    private val context: Context,
+    private val dataStore: DataStore<Preferences>,
+    private val navController: NavController,
+    private val editing: Boolean
+) : ViewModel() {
     fun completeOnBoarding(pattern: ArrayList<Int>) {
         viewModelScope.launch {
             dataStore.edit { store ->
                 store[PATTERN] = pattern.joinToString(separator = "") { it.toString() }
+                if(editing) navController.popBackStack()
+                Toast.makeText(context, "Pattern Saved", Toast.LENGTH_SHORT).show()
             }
         }
     }

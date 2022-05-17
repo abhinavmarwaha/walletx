@@ -11,6 +11,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
 import com.abhinavmarwaha.walletx.lock.LockCallback
 import com.abhinavmarwaha.walletx.lock.PatternLock
 import com.abhinavmarwaha.walletx.models.globalState
@@ -18,7 +19,7 @@ import com.abhinavmarwaha.walletx.onBoarding.AddLock
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-fun Settings() {
+fun Settings(navController: NavController) {
     var correct = remember { mutableStateOf(false) }
 
     if (!correct.value) {
@@ -44,5 +45,5 @@ fun Settings() {
             )
         }
     } else
-        AddLock()
+        AddLock(navController, true)
 }

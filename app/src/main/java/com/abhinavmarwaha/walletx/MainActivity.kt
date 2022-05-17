@@ -143,7 +143,7 @@ class MainActivity : ComponentActivity(), DIAware {
                         composable("allCards") { AllCards(navController) }
                         composable("allNotes") { AllNotes() }
                         composable("about") { About() }
-                        composable("settings") { Settings() }
+                        composable("settings") { Settings(navController) }
                     }
                 }
             }
@@ -172,7 +172,7 @@ fun Home(navController: NavController, sharedImage: Uri?) {
     val firstRun = remember { mutableStateOf(true) }
 
     if (pattern == null) {
-        AddLock()
+        AddLock(navController, false)
     } else if (pattern!!.isEmpty()) Text("Loading")
     else {
         globalState.pattern = pattern
@@ -205,7 +205,7 @@ fun Home(navController: NavController, sharedImage: Uri?) {
                     .padding(20.dp)
                     .verticalScroll(state = ScrollState(0))
             ) {
-                Row(horizontalArrangement = Arrangement.SpaceEvenly){
+                Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.SpaceEvenly) {
                     Icon(
                         Icons.Filled.Info,
                         "About",

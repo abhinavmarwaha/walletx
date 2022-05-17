@@ -52,21 +52,30 @@ fun CardsView(guid: Long, navController: NavController) {
                 .border(border = BorderStroke(2.dp, Color.White))
                 .fillMaxWidth()
                 .height(200.dp)
-                .clickable { navController.navigate("addCard") }
-            , contentAlignment = Alignment.Center
+                .clickable { navController.navigate("addCard") },
+            contentAlignment = Alignment.Center
         ) {
             Text("Add Card", color = Color.Red)
         }
     } else {
         Column(Modifier.fillMaxSize()) {
             val pagerState = rememberPagerState()
-            HorizontalPager(state = pagerState, modifier = Modifier.fillMaxWidth(),count = cards.value.size, itemSpacing = 11.dp, contentPadding = PaddingValues(11.dp)) { page ->
-                val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(cards.value[page].image, context)
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.wrapContentWidth(),
+                count = cards.value.size,
+                itemSpacing = 11.dp,
+                contentPadding = PaddingValues(11.dp)
+            ) { page ->
+                val fileBytes = ImageCryptor(globalState.pattern!!).decryptBitmap(
+                    cards.value[page].image,
+                    context
+                )
                 val bitmap = BitmapFactory.decodeByteArray(fileBytes!!, 0, fileBytes.size)
                 Image(
                     bitmap.asImageBitmap(),
                     cards.value[page].title,
-                    contentScale= ContentScale.FillHeight,
+                    contentScale = ContentScale.FillHeight,
                     modifier = Modifier
                         .height(200.dp)
                         .clickable {
@@ -108,7 +117,7 @@ internal fun ActionsRow(
                 }
             }
         ) {
-            Icon(Icons.Default.ArrowBack, contentDescription = null, tint = DarkRed )
+            Icon(Icons.Default.ArrowBack, contentDescription = null, tint = DarkRed)
         }
 
         IconButton(
