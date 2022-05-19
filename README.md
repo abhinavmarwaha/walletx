@@ -81,3 +81,4 @@ Btc -> 35Tzo8hTsggF2YENmBUc4ZiMjCKNYjgmHH
 * [W-PatternLock](https://github.com/amirhwsyn/W-PatternLock)
 * <a href="https://www.flaticon.com/free-icons/wallet" title="wallet icon">Wallet icon created by Smashicons - Flaticon</a>
 * Learnt a lot by reading the codebase of [Feeder](https://gitlab.com/spacecowboy/Feeder/)
+* really inspired by [Syphon](https://github.com/syphon-org/syphon)
