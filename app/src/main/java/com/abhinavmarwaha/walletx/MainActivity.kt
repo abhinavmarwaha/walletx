@@ -52,6 +52,7 @@ import com.abhinavmarwaha.walletx.ui.theme.WalletXTheme
 import com.abhinavmarwaha.walletx.ui.widgets.LongButton
 import com.abhinavmarwaha.walletx.ui.widgets.SmallButton
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
 import com.google.accompanist.permissions.shouldShowRationale
 import com.google.crypto.tink.Aead
@@ -178,9 +179,7 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
     val pattern: String? by vm.patternFlow.asLiveData().observeAsState()
 
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
-    val readExternal = rememberPermissionState(
-        android.Manifest.permission.READ_EXTERNAL_STORAGE
-    )
+    val readExternal = rememberPermissionState(android.Manifest.permission_group.STORAGE)
     val firstRun = remember { mutableStateOf(true) }
 
     if (pattern == null) {

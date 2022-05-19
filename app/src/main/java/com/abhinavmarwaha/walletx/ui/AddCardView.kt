@@ -92,11 +92,11 @@ fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null, hash:
     } else if (hash != null) {
         LaunchedEffect(Unit){
             // TODO UI getting Refreshed continuously
-            if (!newEditImage.value) {
+//            if (!newEditImage.value) {
                 val file = File(context.cacheDir, hash)
                 val byteArray = file.readBytes()
                 camBitmap.value = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)
-            }
+//            }
         }
     }
 
