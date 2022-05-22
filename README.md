@@ -26,6 +26,7 @@ Secure and Private wallet for Android
     <img src="https://img.shields.io/github/v/release/abhinavmarwaha/walletx?include_prereleases&color=red"/>
     <img src="https://img.shields.io/github/commits-since/abhinavmarwaha/walletx/latest?color=red"/> 
     <img src="https://img.shields.io/discord/894461670989103144?color=red&label=Discord&logo=Discord&logoColor=red&style=flat-square"/>
+    <img src="https://img.shields.io/github/workflow/status/abhinavmarwaha/walletx/CI?color=red"/>  
 </p>
 
 <p align='center'> 
