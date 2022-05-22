@@ -163,6 +163,12 @@ fun AddCardView(navController: NavController, id: Long?, uri: Uri? = null, hash:
         Spacer(Modifier.size(20.dp))
         Box(Modifier.align(Alignment.CenterHorizontally)) {
             LongButton(function = {
+                                  navController.navigate("scanner")
+            }, text = "Scan", Modifier)
+        }
+        Spacer(Modifier.height(10.dp))
+        Box(Modifier.align(Alignment.CenterHorizontally)) {
+            LongButton(function = {
                 newEditImage.value = true
                 cameraLauncher.launch()
             }, text = if (camBitmap.value == null) "Add Image" else "Edit Image", Modifier)

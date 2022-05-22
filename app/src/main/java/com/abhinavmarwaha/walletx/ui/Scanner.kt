@@ -18,6 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.lifecycle.MutableLiveData
+import com.abhinavmarwaha.walletx.MainActivity
 import com.abhinavmarwaha.walletx.R
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberPermissionState
@@ -29,10 +30,10 @@ import com.journeyapps.barcodescanner.BarcodeResult
 import com.journeyapps.barcodescanner.DecoratedBarcodeView
 import com.journeyapps.barcodescanner.DefaultDecoderFactory
 
-private fun Context.getActivity(): AppCompatActivity? = when (this) {
+private fun Context.getActivity(): AppCompatActivity = when (this) {
     is AppCompatActivity -> this
     is ContextWrapper -> baseContext.getActivity()
-    else -> null
+    else -> MainActivity().getActivity()
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
@@ -44,19 +45,20 @@ fun Scanner (){
 
     val readExternal = rememberPermissionState(Manifest.permission_group.CAMERA)
 
-    val beepManager = BeepManager(context.getActivity())
     val root = LayoutInflater.from(context).inflate(R.layout.scanner, null)
     barcodeView = root.findViewById(R.id.barcode_scanner)
     val formats = listOf(BarcodeFormat.QR_CODE, BarcodeFormat.CODE_39)
     barcodeView.barcodeView.decoderFactory = DefaultDecoderFactory(formats)
-    barcodeView.initializeFromIntent(context.getActivity()?.intent)
+//    val beepManager = BeepManager(context.)
+    barcodeView.initializeFromIntent(context.getActivity().intent)
+
     val callback = object : BarcodeCallback {
         override fun barcodeResult(result: BarcodeResult) {
             if (result.text == null || result.text == text.value) {
                 return
             }
             text.value = result.text
-            beepManager.playBeepSoundAndVibrate()
+//            beepManager.playBeepSoundAndVibrate()
         }
     }
     barcodeView.decodeContinuous(callback)

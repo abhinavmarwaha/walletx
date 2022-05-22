@@ -8,11 +8,12 @@ import android.os.Bundle
 import android.os.Parcelable
 import android.util.Log
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.ScrollState
-import androidx.compose.foundation.clickable
+import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.*
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Settings
@@ -23,10 +24,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.asImageBitmap
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.DialogProperties
+import androidx.core.content.ContextCompat
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.*
 import androidx.lifecycle.ViewModel
@@ -59,6 +65,7 @@ import com.google.crypto.tink.Aead
 import com.google.crypto.tink.KeyTemplates
 import com.google.crypto.tink.aead.AeadConfig
 import com.google.crypto.tink.integration.android.AndroidKeysetManager
+import com.skydoves.landscapist.rememberDrawablePainter
 import io.github.osipxd.datastore.encrypted.createEncrypted
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -157,6 +164,7 @@ class MainActivity : ComponentActivity(), DIAware {
                         composable("allNotes") { AllNotes() }
                         composable("about") { About() }
                         composable("settings") { Settings(navController) }
+                        composable("scanner") { Scanner() }
                     }
                 }
             }
@@ -181,6 +189,12 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
     val (showDialog, setShowDialog) = remember { mutableStateOf(false) }
     val readExternal = rememberPermissionState(android.Manifest.permission_group.STORAGE)
     val firstRun = remember { mutableStateOf(true) }
+
+    val bitmap = remember { mutableStateOf<Bitmap?>(null) }
+    val cameraLauncher =
+        rememberLauncherForActivityResult(ActivityResultContracts.TakePicturePreview()) {
+            bitmap.value = it
+        }
 
     if (pattern == null) {
         AddLock(navController, false)
@@ -233,6 +247,31 @@ fun Home(navController: NavController, sharedImage: Uri?, sharedPDF: Uri?) {
                             .size(30.dp),
                         tint = DarkRed
                     )
+                }
+                bitmap.value.let {
+                    val data = it
+                    if (data == null) {
+                        Image(
+                            rememberDrawablePainter(drawable = ContextCompat.getDrawable(context,R.drawable.sample_special) ),
+                            contentDescription = "Special",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
+                    else{
+                        Image(
+                            bitmap = bitmap.value!!.asImageBitmap(),
+                            contentDescription = "Special",
+                            contentScale = ContentScale.Crop,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .clip(CircleShape)
+                                .align(Alignment.CenterHorizontally)
+                        )
+                    }
                 }
                 MoneyView()
                 CardsView(1, navController)

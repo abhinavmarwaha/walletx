@@ -79,8 +79,9 @@ dependencies {
     implementation "com.github.skydoves:landscapist-glide:1.5.1"
     implementation "com.google.accompanist:accompanist-pager:0.24.8-beta"
 
-    // QR / Barcode
+    // QR / Barcode / Card Scanner
     implementation 'com.journeyapps:zxing-android-embedded:4.3.0'
+    implementation 'io.card:android-sdk:5.5.1'
 
     // Share
     implementation "com.google.accompanist:accompanist-permissions:0.24.8-beta"
