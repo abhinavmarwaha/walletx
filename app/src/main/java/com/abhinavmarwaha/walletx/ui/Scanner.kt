@@ -44,10 +44,6 @@ fun Scanner (){
 
     val readExternal = rememberPermissionState(Manifest.permission_group.CAMERA)
 
-    if (readExternal.status.shouldShowRationale) {
-        readExternal.launchPermissionRequest()
-    }
-
     val beepManager = BeepManager(context.getActivity())
     val root = LayoutInflater.from(context).inflate(R.layout.scanner, null)
     barcodeView = root.findViewById(R.id.barcode_scanner)
@@ -83,4 +79,11 @@ fun Scanner (){
         }
     }
 
+    fun permission(){
+        if (readExternal.status.shouldShowRationale) {
+            readExternal.launchPermissionRequest()
+        }
+    }
+
 }
+
