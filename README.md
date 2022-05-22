@@ -14,7 +14,7 @@ Secure and Private wallet for Android
     <a href='https://f-droid.org/en/packages/com.abhinavmarwaha.walletx/'>
         <img height="56" src="./assets/external/fdroid.png">
     </a> -->
-    <a href='https://github.com/abhinavmarwaha/walletx/releases/latest'>
+    <a href='https://github.com/abhinavmarwaha/walletxcompose jetpack/releases/latest'>
         <img src="./assets/external/github.png" alt="Get it on Github" height="56">
     </a>
 </p>
@@ -44,13 +44,16 @@ Secure and Private wallet for Android
 * Backup your Encrypted Database with something like seedvault
 * Card Scanner
 * Barcode Scanner
-* Vouchers
+* Vouchers / Coupons
+* UI for Photograph we put in our wallets
 
 ### Coming Soon:
 
+* Generic Wallet object and item API
+* Car keys / Bluetooth Keys
+* NFC / RFID keys
 * Backup your Encrypted Database Manually
 * Share wallet items securely with your family and friends
-* UI for Photograph we put in our wallets
 * Crop image and detect card
 * Material You
 
