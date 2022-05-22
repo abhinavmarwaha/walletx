@@ -10,13 +10,23 @@ import java.util.concurrent.Executors
 
 private val IO_EXECUTOR = Executors.newSingleThreadExecutor()
 
-fun ioThread(f : () -> Unit) {
+fun ioThread(f: () -> Unit) {
     IO_EXECUTOR.execute(f)
 }
 
 const val DATABASE_NAME = "rssDatabase"
 
-@Database(entities = [Card::class, CardGroup::class, CardGroupRelation::class, KeyValueNote::class], version = 1, exportSchema = false)
+@Database(
+    entities = [
+        Card::class,
+        CardGroup::class,
+        CardGroupRelation::class,
+        KeyValueNote::class,
+        Coupon::class
+    ],
+    version = 1,
+    exportSchema = false
+)
 @TypeConverters(Converters::class)
 abstract class AppDatabase : RoomDatabase() {
 
@@ -60,9 +70,9 @@ abstract class AppDatabase : RoomDatabase() {
         private fun buildDatabase(context: Context): AppDatabase {
             val passphrase: ByteArray = SQLiteDatabase.getBytes(globalState.pattern!!.toCharArray())
             val factory = SupportFactory(passphrase)
-           return Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
-               .openHelperFactory(factory)
-                .addCallback(object: Callback(){
+            return Room.databaseBuilder(context, AppDatabase::class.java, DATABASE_NAME)
+                .openHelperFactory(factory)
+                .addCallback(object : Callback() {
                     override fun onCreate(db: SupportSQLiteDatabase) {
                         super.onCreate(db)
                         ioThread {
@@ -76,7 +86,8 @@ abstract class AppDatabase : RoomDatabase() {
                             group.group = "Main"
                             db.cardGroupDao().insertGroup(group)
                         }
-                }})
+                    }
+                })
                 .build()
         }
     }

@@ -7,3 +7,6 @@ const val COL_IMAGE= "image"
 const val COL_GUID = "guid"
 const val COL_GROUP = "group"
 const val COL_KEY_VALUE = "key_value"
+
+const val COL_COUPON = "coupon"
+const val COL_DESC = "desc"
