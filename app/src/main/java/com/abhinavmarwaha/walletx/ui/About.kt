@@ -27,29 +27,47 @@ fun About() {
         Modifier
             .fillMaxWidth()
             .fillMaxHeight()
-            .padding(30.dp), horizontalAlignment = Alignment.CenterHorizontally, verticalArrangement = Arrangement.SpaceEvenly) {
-        AboutBtn(title = "Feedback / Bug", url = FeedbackConstants.FEATUREFORMURL)
-        AboutBtn(title = "Rate App", url = FeedbackConstants.RATEAPPURL)
+            .padding(30.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceEvenly
+    ) {
+        AboutBtn(
+            title = "Feedback / Bug",
+            url = FeedbackConstants.FEATUREFORMURL,
+            subTitle = "Microsoft forms"
+        )
+        AboutBtn(title = "Rate App", url = FeedbackConstants.RATEAPPURL, subTitle = "play store")
         AboutBtn(title = "Github", url = FeedbackConstants.GITHUBREPO)
         AboutBtn(title = "Discord", url = FeedbackConstants.DISCORD)
         AboutBtn(title = "Patreon", url = FeedbackConstants.PATREON)
-        AboutBtn(title = "Buy Me a Coffee", url = FeedbackConstants.COFFEE)
+        AboutBtn(title = "Buy Me a Coffee", url = FeedbackConstants.COFFEE, subTitle = "ko-fi")
     }
 
 }
 
 @OptIn(ExperimentalUnitApi::class)
 @Composable
-fun AboutBtn(title: String, url: String){
+fun AboutBtn(title: String, url: String, subTitle: String = "") {
     val ctx = LocalContext.current
     Button(
         modifier = Modifier,
         colors = ButtonDefaults.buttonColors(containerColor = DarkRed),
         onClick = {
-          UrlUtils.openUrl(ctx,url)
+            UrlUtils.openUrl(ctx, url)
         },
         shape = RoundedCornerShape(50)
     ) {
-        androidx.compose.material3.Text(title, color=Color.White, fontSize = TextUnit(2f, TextUnitType.Em))
+        Column() {
+            androidx.compose.material3.Text(
+                title,
+                color = Color.White,
+                fontSize = TextUnit(2f, TextUnitType.Em)
+            )
+            androidx.compose.material3.Text(
+                subTitle,
+                color = Color.Gray,
+                fontSize = TextUnit(1f, TextUnitType.Em)
+            )
+        }
     }
 }
